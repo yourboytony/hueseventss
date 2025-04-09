@@ -3,6 +3,15 @@ import { getDatabase, Database } from 'firebase/database'
 import { getAuth, Auth } from 'firebase/auth'
 import { getAnalytics, Analytics } from 'firebase/analytics'
 
+// Log all environment variables (except sensitive ones)
+console.log('Environment variables:', {
+  ...Object.fromEntries(
+    Object.entries(import.meta.env)
+      .filter(([key]) => !key.includes('API_KEY'))
+      .map(([key, value]) => [key, value])
+  )
+})
+
 // Validate required environment variables
 const requiredEnvVars = [
   'VITE_FIREBASE_API_KEY',
@@ -19,6 +28,7 @@ const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName])
 
 if (missingVars.length > 0) {
   console.error('Missing required environment variables:', missingVars)
+  console.error('Current environment:', import.meta.env)
   throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`)
 }
 
