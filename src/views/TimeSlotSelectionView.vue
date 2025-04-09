@@ -223,12 +223,26 @@ onUnmounted(() => {
   event.value = null
 })
 
-const selectSlot = (slot: { time: string, zulu: string }) => {
-  router.push({
-    name: 'book-event',
-    params: { id: route.params.id },
-    query: { selectedTime: slot.zulu } // Always store Zulu time
-  })
+const selectSlot = (slot: { time: string }) => {
+  if (!event.value) return
+  
+  try {
+    // Create state object with selected time
+    const state = {
+      selectedTime: slot.time
+    }
+    
+    // Navigate to booking page with state
+    router.push({
+      name: 'book-event',
+      params: { 
+        id: event.value.id,
+        state: encodeURIComponent(JSON.stringify(state))
+      }
+    })
+  } catch (error) {
+    console.error('Error selecting time slot:', error)
+  }
 }
 </script>
 
