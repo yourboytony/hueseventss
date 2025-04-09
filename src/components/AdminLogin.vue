@@ -5,12 +5,12 @@ import { useRouter } from 'vue-router'
 
 const adminStore = useAdminStore()
 const router = useRouter()
-const email = ref('')
+const username = ref('')
 const password = ref('')
 
 const handleLogin = async () => {
   try {
-    await adminStore.login(email.value, password.value)
+    await adminStore.login(username.value, password.value)
     router.push('/admin')
   } catch (error) {
     // Error is already handled by the store
@@ -24,13 +24,13 @@ const handleLogin = async () => {
       <h2>Admin Login</h2>
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
-          <label for="email">Email</label>
+          <label for="username">Username</label>
           <input 
-            id="email"
-            v-model="email"
-            type="email"
+            id="username"
+            v-model="username"
+            type="text"
             required
-            placeholder="Enter email"
+            placeholder="Enter username"
             :disabled="adminStore.isLoading"
           />
         </div>

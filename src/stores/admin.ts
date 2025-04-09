@@ -15,10 +15,12 @@ export const useAdminStore = defineStore('admin', () => {
     isAuthenticated.value = !!currentUser
   })
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
       isLoading.value = true
       error.value = null
+      // Convert username to email format for Firebase
+      const email = `${username}@hues.admin`
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       user.value = userCredential.user
       isAuthenticated.value = true
