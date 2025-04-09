@@ -72,22 +72,10 @@ const handleSubmit = async () => {
       throw new Error('No event data available')
     }
 
-    // Get the selected time from the route state
-    const state = route.params.state as string
-    if (!state) {
+    // Get the selected time from query parameters
+    const selectedTime = route.query.selectedTime as string
+    if (!selectedTime) {
       throw new Error('No time slot selected')
-    }
-
-    let selectedTime: string
-    try {
-      const parsedState = JSON.parse(decodeURIComponent(state))
-      if (!parsedState.selectedTime) {
-        throw new Error('No time slot selected')
-      }
-      selectedTime = parsedState.selectedTime
-    } catch (parseError) {
-      console.error('Error parsing route state:', parseError)
-      throw new Error('Invalid booking data')
     }
 
     console.log('Creating registration with data:', {
@@ -170,34 +158,19 @@ onMounted(async () => {
     loading.value = true
     error.value = ''
     
-    // Get event ID from route params or localStorage
-    const eventId = route.params.id as string || localStorage.getItem('selectedEventId')
+    // Get event ID from route params
+    const eventId = route.params.id as string
     if (!eventId) {
       throw new Error('No event ID provided')
     }
 
-    // Get selected time from route state or localStorage
-    let selectedTime: string | null = null
-    const state = route.params.state as string
-    
-    if (state) {
-      try {
-        const parsedState = JSON.parse(decodeURIComponent(state))
-        selectedTime = parsedState.selectedTime
-      } catch (parseError) {
-        console.error('Error parsing route state:', parseError)
-      }
-    }
-    
-    // If no state in route, try localStorage
-    if (!selectedTime) {
-      selectedTime = localStorage.getItem('selectedTimeSlot')
-      console.log('Retrieved time slot from localStorage:', selectedTime)
-    }
-    
+    // Get selected time from query parameters
+    const selectedTime = route.query.selectedTime as string
     if (!selectedTime) {
       throw new Error('No time slot selected')
     }
+
+    console.log('Retrieved time slot from URL:', selectedTime)
 
     // Fetch event data
     const foundEvent = await eventStore.getEventById(eventId)
@@ -206,21 +179,6 @@ onMounted(async () => {
     }
     
     event.value = foundEvent
-
-    // Update the route state with the selected time
-    if (!state && selectedTime) {
-      router.replace({
-        name: 'book-event',
-        params: {
-          id: eventId,
-          state: encodeURIComponent(JSON.stringify({ selectedTime }))
-        }
-      })
-    }
-    
-    // Clear localStorage after successful load and state update
-    localStorage.removeItem('selectedTimeSlot')
-    localStorage.removeItem('selectedEventId')
   } catch (err) {
     console.error('Error loading event data:', err)
     error.value = err instanceof Error ? err.message : 'Failed to load flight details'

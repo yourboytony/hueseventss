@@ -227,24 +227,13 @@ const selectSlot = (slot: { time: string }) => {
   if (!event.value) return
   
   try {
-    console.log('Storing selected time slot:', slot.time)
+    console.log('Selected time slot:', slot.time)
     
-    // Store the selected time and event ID in localStorage
-    localStorage.setItem('selectedTimeSlot', slot.time)
-    localStorage.setItem('selectedEventId', event.value.id)
-    
-    // Create state object with selected time
-    const state = {
-      selectedTime: slot.time
-    }
-    
-    // Navigate to booking page with state
+    // Navigate to booking page with query parameters
     router.push({
       name: 'book-event',
-      params: { 
-        id: event.value.id,
-        state: encodeURIComponent(JSON.stringify(state))
-      }
+      params: { id: event.value.id },
+      query: { selectedTime: slot.time }
     })
   } catch (error) {
     console.error('Error selecting time slot:', error)
