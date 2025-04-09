@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { auth } from '../firebase/config'
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth'
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User, AuthError } from 'firebase/auth'
 
 export const useAdminStore = defineStore('admin', () => {
   const isAuthenticated = ref(false)
@@ -19,13 +19,48 @@ export const useAdminStore = defineStore('admin', () => {
     try {
       isLoading.value = true
       error.value = null
+      
+      // Validate input
+      if (!username || !password) {
+        throw new Error('Username and password are required')
+      }
+
       // Convert username to email format for Firebase
-      const email = `${username}@hues.admin`
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      user.value = userCredential.user
-      isAuthenticated.value = true
+      const email = username.includes('@') ? username : `${username}@hues.admin`
+      
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        user.value = userCredential.user
+        isAuthenticated.value = true
+      } catch (authError) {
+        // Handle specific Firebase auth errors
+        const err = authError as AuthError
+        switch (err.code) {
+          case 'auth/user-not-found':
+            error.value = 'Invalid username or password'
+            break
+          case 'auth/wrong-password':
+            error.value = 'Invalid username or password'
+            break
+          case 'auth/invalid-email':
+            error.value = 'Invalid username format'
+            break
+          case 'auth/user-disabled':
+            error.value = 'This account has been disabled'
+            break
+          case 'auth/too-many-requests':
+            error.value = 'Too many failed attempts. Please try again later'
+            break
+          default:
+            error.value = 'Failed to login. Please try again'
+            console.error('Auth error:', err)
+        }
+        throw err
+      }
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to login'
+      if (!error.value) {
+        error.value = err instanceof Error ? err.message : 'Failed to login'
+      }
       throw err
     } finally {
       isLoading.value = false

@@ -7,13 +7,20 @@ const adminStore = useAdminStore()
 const router = useRouter()
 const username = ref('')
 const password = ref('')
+const isSubmitting = ref(false)
 
 const handleLogin = async () => {
+  if (isSubmitting.value) return
+  
   try {
+    isSubmitting.value = true
     await adminStore.login(username.value, password.value)
     router.push('/admin')
   } catch (error) {
     // Error is already handled by the store
+    console.error('Login error:', error)
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -31,7 +38,8 @@ const handleLogin = async () => {
             type="text"
             required
             placeholder="Enter username"
-            :disabled="adminStore.isLoading"
+            :disabled="adminStore.isLoading || isSubmitting"
+            autocomplete="username"
           />
         </div>
         <div class="form-group">
@@ -42,18 +50,24 @@ const handleLogin = async () => {
             type="password"
             required
             placeholder="Enter password"
-            :disabled="adminStore.isLoading"
+            :disabled="adminStore.isLoading || isSubmitting"
+            autocomplete="current-password"
           />
         </div>
-        <div v-if="adminStore.error" class="error">
+        <div v-if="adminStore.error" class="error" role="alert">
           {{ adminStore.error }}
         </div>
         <button 
           type="submit"
-          :disabled="adminStore.isLoading"
+          :disabled="adminStore.isLoading || isSubmitting || !username || !password"
           class="login-button"
         >
-          {{ adminStore.isLoading ? 'Logging in...' : 'Login' }}
+          <span v-if="adminStore.isLoading || isSubmitting">
+            Logging in...
+          </span>
+          <span v-else>
+            Login
+          </span>
         </button>
       </form>
     </div>
@@ -132,11 +146,26 @@ h2 {
 
 .error {
   color: #ff6b6b;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
   padding: 0.8rem;
   background: rgba(255, 107, 107, 0.1);
   border-radius: 6px;
   text-align: center;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.form-group input.error {
+  border-color: #ff6b6b;
+}
+
+.form-group input.error:focus {
+  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
 }
 
 .login-button {
