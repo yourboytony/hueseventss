@@ -2,12 +2,13 @@
 import { onMounted, ref, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEventsStore } from '@/stores/events'
-import type { Event } from '@/stores/events'
+import type { Event, TimeSlot } from '@/stores/events'
 import PageTransition from '@/components/PageTransition.vue'
 import LoadingScreen from '@/components/LoadingScreen.vue'
 import AnimatedBackground from '@/components/AnimatedBackground.vue'
 import GlowButton from '@/components/GlowButton.vue'
 import MobileContainer from '@/components/MobileContainer.vue'
+import BookingFormModal from '@/components/BookingFormModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,6 +16,8 @@ const eventStore = useEventsStore()
 const event = ref<Event | null>(null)
 const loading = ref(true)
 const error = ref('')
+const showBookingModal = ref(false)
+const selectedTimeSlot = ref<string>('')
 
 // Add transition control
 const showContent = ref(false)
@@ -223,19 +226,15 @@ onUnmounted(() => {
   event.value = null
 })
 
-const selectSlot = async (slot: TimeSlot) => {
+const selectSlot = async (slot: { time: string }) => {
   if (!event.value) return
   
   try {
     loading.value = true
     error.value = ''
     
-    // Navigate to booking page with event ID and selected time as URL parameters
-    router.push({
-      name: 'book-event',
-      params: { id: event.value.id },
-      query: { time: slot.time }
-    })
+    selectedTimeSlot.value = slot.time
+    showBookingModal.value = true
   } catch (err) {
     console.error('Error selecting slot:', err)
     error.value = err instanceof Error ? err.message : 'Failed to select time slot'
@@ -321,6 +320,14 @@ const selectSlot = async (slot: TimeSlot) => {
       </div>
     </div>
   </PageTransition>
+
+  <!-- Add the booking modal -->
+  <BookingFormModal
+    v-if="showBookingModal"
+    :event="event"
+    :selected-time="selectedTimeSlot"
+    @close="showBookingModal = false"
+  />
 </template>
 
 <style scoped>
@@ -863,5 +870,10 @@ h1 {
   .slot-card {
     background: rgba(255, 255, 255, 0.03);
   }
+}
+
+.time-slot-selection {
+  position: relative;
+  min-height: 100vh;
 }
 </style> 
