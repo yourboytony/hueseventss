@@ -59,11 +59,11 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   const adminStore = useAdminStore()
   
   if (to.meta.requiresAuth && !adminStore.isAuthenticated) {
-    next({ name: 'adminLogin' })
+    next({ name: 'admin-login' })
   } else {
     next()
   }
