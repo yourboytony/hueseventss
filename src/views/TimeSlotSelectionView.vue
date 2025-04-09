@@ -19,25 +19,27 @@ const error = ref('')
 // Add transition control
 const showContent = ref(false)
 
-// Helper function to parse time string to Date in PDT
+// Helper function to parse time string to Date in PDT and convert to UTC
 const parseTimeString = (timeStr: string, baseDate: Date) => {
   const [hours, minutes] = timeStr.split(':').map(Number)
+  
   // Create a new date object in PDT
   const pdtDate = new Date(baseDate)
-  // Set time in PDT
   pdtDate.setHours(hours, minutes, 0, 0)
-  // Convert PDT to UTC by adding 7 hours (PDT is UTC-7)
-  const utcDate = new Date(pdtDate.getTime() + (7 * 60 * 60 * 1000))
+  
+  // Convert PDT to UTC by adding 7 hours
+  const utcHours = hours + 7
+  const utcDate = new Date(pdtDate)
+  utcDate.setHours(utcHours, minutes, 0, 0)
+  
   return utcDate
 }
 
 const formatTimeSlot = (date: Date) => {
-  // Always format in UTC with Z suffix
-  return date.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'UTC'
-  }) + 'Z'
+  // Format in UTC with Z suffix
+  const hours = date.getUTCHours().toString().padStart(2, '0')
+  const minutes = date.getUTCMinutes().toString().padStart(2, '0')
+  return `${hours}:${minutes}Z`
 }
 
 const timeSlots = computed(() => {
@@ -112,7 +114,7 @@ const timeSlots = computed(() => {
       const now = new Date()
       
       slots.push({
-        time: timeString, // Always show in UTC
+        time: timeString,
         available: !bookedSlots.has(timeString) && slotTime > now,
         rawTime: slotTime,
         zulu: timeString
@@ -146,19 +148,11 @@ const formatZuluTime = (timeStr: string | undefined, date: string) => {
   const [hours, minutes] = timeStr.split(':').map(Number)
   if (isNaN(hours) || isNaN(minutes)) return '--:--Z'
   
-  // Create date in PDT
-  const pdtDate = new Date(date)
-  pdtDate.setHours(hours, minutes, 0, 0)
-  
   // Convert PDT to UTC by adding 7 hours
-  const utcDate = new Date(pdtDate.getTime() + (7 * 60 * 60 * 1000))
+  const utcHours = (hours + 7) % 24
   
   // Format in UTC
-  return utcDate.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'UTC'
-  }) + 'Z'
+  return `${utcHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}Z`
 }
 
 const bookedSlotsCount = computed(() => {
