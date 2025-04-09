@@ -4,11 +4,16 @@ import { useRoute, useRouter } from 'vue-router'
 import { useEventsStore } from '@/stores/events'
 import { useBannedUsersStore } from '@/stores/bannedUsers'
 import type { Event } from '@/stores/events'
+import { getEventById } from '@/services/events'
+import { createBooking } from '@/services/bookings'
+import { useToast } from 'vue-toastification'
 
 const route = useRoute()
 const router = useRouter()
 const eventStore = useEventsStore()
 const bannedUsersStore = useBannedUsersStore()
+const toast = useToast()
+
 const event = ref<Event | null>(null)
 const loading = ref(true)
 const error = ref('')
@@ -56,22 +61,20 @@ const validateForm = () => {
 }
 
 const handleSubmit = async () => {
-  if (!validateForm()) return
+  if (!validateForm()) {
+    toast.error('Please fill in all required fields correctly')
+    return
+  }
   
   try {
-    // TODO: Implement booking submission
-    console.log('Booking submitted:', {
+    await createBooking({
       eventId: event.value?.id,
-      time: selectedTime.value,
+      timeSlot: selectedTime.value,
       ...formData.value
     })
     
-    // Navigate to confirmation or success page
-    router.push({
-      name: 'event-details',
-      params: { id: route.params.id },
-      query: { booked: 'true' }
-    })
+    toast.success('Booking submitted successfully!')
+    router.push('/dashboard')
   } catch (err) {
     error.value = 'Failed to submit booking. Please try again.'
   }
