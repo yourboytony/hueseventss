@@ -72,10 +72,22 @@ const handleSubmit = async () => {
       throw new Error('No event data available')
     }
 
-    // Get the selected time from the route query
-    const selectedTime = route.query.selectedTime as string
-    if (!selectedTime) {
+    // Get the selected time from the route state
+    const state = route.params.state as string
+    if (!state) {
       throw new Error('No time slot selected')
+    }
+
+    let selectedTime: string
+    try {
+      const parsedState = JSON.parse(decodeURIComponent(state))
+      if (!parsedState.selectedTime) {
+        throw new Error('No time slot selected')
+      }
+      selectedTime = parsedState.selectedTime
+    } catch (parseError) {
+      console.error('Error parsing route state:', parseError)
+      throw new Error('Invalid booking data')
     }
 
     console.log('Creating registration with data:', {
@@ -155,21 +167,55 @@ const handleSubmit = async () => {
 
 onMounted(async () => {
   try {
+    loading.value = true
+    error.value = ''
+    
+    // Get event ID from route params
     const eventId = route.params.id as string
-    
-    if (eventStore.events.length === 0) {
-      await eventStore.fetchEvents()
+    if (!eventId) {
+      throw new Error('No event ID provided')
     }
-    
-    const foundEvent = eventStore.events.find(e => e.id === eventId)
+
+    // Get selected time from route state
+    const state = route.params.state as string
+    if (!state) {
+      throw new Error('No time slot selected')
+    }
+
+    try {
+      const parsedState = JSON.parse(decodeURIComponent(state))
+      if (!parsedState.selectedTime) {
+        throw new Error('No time slot selected')
+      }
+      // Update the selected time display in the template
+      const selectedTimeElement = document.querySelector('.info-item:nth-child(3)')
+      if (selectedTimeElement) {
+        selectedTimeElement.textContent = `Selected Time: ${parsedState.selectedTime}`
+      }
+    } catch (parseError) {
+      console.error('Error parsing route state:', parseError)
+      throw new Error('Invalid booking data')
+    }
+
+    // Fetch event data
+    const foundEvent = await eventStore.getEventById(eventId)
     if (!foundEvent) {
       throw new Error('Flight not found')
     }
     
     event.value = foundEvent
-    loading.value = false
   } catch (err) {
-    error.value = 'Failed to load flight details. Please try again.'
+    console.error('Error loading event data:', err)
+    error.value = err instanceof Error ? err.message : 'Failed to load flight details'
+    // Only redirect if we can't find the event or no time slot is selected
+    if (err instanceof Error && 
+       (err.message === 'Flight not found' || err.message === 'No time slot selected')) {
+      router.replace({ 
+        name: 'select-slot', 
+        params: { id: route.params.id }
+      })
+    }
+  } finally {
     loading.value = false
   }
 })
