@@ -227,6 +227,10 @@ const selectSlot = (slot: { time: string }) => {
   if (!event.value) return
   
   try {
+    // Store the selected time in localStorage
+    localStorage.setItem('selectedTimeSlot', slot.time)
+    localStorage.setItem('selectedEventId', event.value.id)
+    
     // Create state object with selected time
     const state = {
       selectedTime: slot.time

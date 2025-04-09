@@ -170,31 +170,38 @@ onMounted(async () => {
     loading.value = true
     error.value = ''
     
-    // Get event ID from route params
-    const eventId = route.params.id as string
+    // Get event ID from route params or localStorage
+    const eventId = route.params.id as string || localStorage.getItem('selectedEventId')
     if (!eventId) {
       throw new Error('No event ID provided')
     }
 
-    // Get selected time from route state
+    // Get selected time from route state or localStorage
+    let selectedTime: string | null = null
     const state = route.params.state as string
-    if (!state) {
+    
+    if (state) {
+      try {
+        const parsedState = JSON.parse(decodeURIComponent(state))
+        selectedTime = parsedState.selectedTime
+      } catch (parseError) {
+        console.error('Error parsing route state:', parseError)
+      }
+    }
+    
+    // If no state in route, try localStorage
+    if (!selectedTime) {
+      selectedTime = localStorage.getItem('selectedTimeSlot')
+    }
+    
+    if (!selectedTime) {
       throw new Error('No time slot selected')
     }
 
-    try {
-      const parsedState = JSON.parse(decodeURIComponent(state))
-      if (!parsedState.selectedTime) {
-        throw new Error('No time slot selected')
-      }
-      // Update the selected time display in the template
-      const selectedTimeElement = document.querySelector('.info-item:nth-child(3)')
-      if (selectedTimeElement) {
-        selectedTimeElement.textContent = `Selected Time: ${parsedState.selectedTime}`
-      }
-    } catch (parseError) {
-      console.error('Error parsing route state:', parseError)
-      throw new Error('Invalid booking data')
+    // Update the selected time display in the template
+    const selectedTimeElement = document.querySelector('.info-item:nth-child(3)')
+    if (selectedTimeElement) {
+      selectedTimeElement.textContent = `Selected Time: ${selectedTime}`
     }
 
     // Fetch event data
@@ -204,6 +211,10 @@ onMounted(async () => {
     }
     
     event.value = foundEvent
+    
+    // Clear localStorage after successful load
+    localStorage.removeItem('selectedTimeSlot')
+    localStorage.removeItem('selectedEventId')
   } catch (err) {
     console.error('Error loading event data:', err)
     error.value = err instanceof Error ? err.message : 'Failed to load flight details'
