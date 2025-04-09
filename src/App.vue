@@ -1,0 +1,184 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { RouterView } from 'vue-router'
+import { useAdminStore } from '@/stores/admin'
+import AdminHeader from './components/AdminHeader.vue'
+import LoadingScreen from '@/components/LoadingScreen.vue'
+import PageTransition from '@/components/PageTransition.vue'
+
+const adminStore = useAdminStore()
+const isLoading = ref(true)
+
+onMounted(() => {
+  // Simulate initial loading
+  setTimeout(() => {
+    isLoading.value = false
+  }, 2000)
+})
+</script>
+
+<template>
+  <LoadingScreen v-if="isLoading" message="Welcome to HUES By Horizon" />
+  
+  <PageTransition name="scale">
+    <div v-show="!isLoading" class="app-container">
+      <AdminHeader />
+      <main class="main-content">
+        <RouterView v-slot="{ Component }">
+          <PageTransition>
+            <component :is="Component" />
+          </PageTransition>
+        </RouterView>
+      </main>
+    </div>
+  </PageTransition>
+</template>
+
+<style>
+/* Global styles */
+:root {
+  --primary-color: #002d65;
+  --secondary-color: #3b82f6;
+  --accent-color: #a3c2ff;
+  --background-color: #f8f9fa;
+  --text-color: #1f2937;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--text-color);
+  background: var(--background-color);
+}
+
+.app-container {
+  min-height: 100vh;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Global animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better focus styles */
+:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+/* Improved button styles */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+/* Improved link styles */
+a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent-color);
+}
+
+/* Improved scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Add smooth transitions for all interactive elements */
+button,
+a,
+input,
+select,
+textarea {
+  transition: all 0.2s ease;
+}
+
+/* Disable transitions when user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+body {
+  background-color: #002d65;
+  color: white;
+  font-family: 'MontserratAlt', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 64px; /* Height of admin header */
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Custom scrollbar styles */
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+</style> 
