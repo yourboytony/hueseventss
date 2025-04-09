@@ -1,23 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { auth } from '../firebase/config'
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User, AuthError } from 'firebase/auth'
+
+// Hardcoded admin credentials
+const ADMIN_CREDENTIALS = {
+  username: 'HUESAdmin',
+  password: 'HUESAdmin123!'
+}
 
 export const useAdminStore = defineStore('admin', () => {
   const isAuthenticated = ref(false)
   const error = ref<string | null>(null)
   const isLoading = ref(false)
-  const user = ref<User | null>(null)
-
-  // Initialize auth state listener
-  onAuthStateChanged(auth, (currentUser) => {
-    user.value = currentUser
-    isAuthenticated.value = !!currentUser
-    console.log('Auth state changed:', { 
-      isAuthenticated: isAuthenticated.value,
-      userId: currentUser?.uid
-    })
-  })
+  const user = ref<{ username: string } | null>(null)
 
   const login = async (username: string, password: string) => {
     try {
@@ -30,44 +24,14 @@ export const useAdminStore = defineStore('admin', () => {
         throw new Error('Username and password are required')
       }
 
-      // Convert username to email format for Firebase
-      const email = username.includes('@') ? username : `${username}@hues.admin`
-      console.log('Using email format:', email)
-      
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password)
-        user.value = userCredential.user
+      // Check against hardcoded credentials
+      if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+        user.value = { username }
         isAuthenticated.value = true
-        console.log('Login successful:', userCredential.user.uid)
-      } catch (authError) {
-        console.error('Auth error details:', authError)
-        // Handle specific Firebase auth errors
-        const err = authError as AuthError
-        switch (err.code) {
-          case 'auth/configuration-not-found':
-            error.value = 'Authentication is not properly configured. Please contact support.'
-            console.error('Firebase configuration error. Please check Firebase Console settings.')
-            break
-          case 'auth/user-not-found':
-            error.value = 'Invalid username or password'
-            break
-          case 'auth/wrong-password':
-            error.value = 'Invalid username or password'
-            break
-          case 'auth/invalid-email':
-            error.value = 'Invalid username format'
-            break
-          case 'auth/user-disabled':
-            error.value = 'This account has been disabled'
-            break
-          case 'auth/too-many-requests':
-            error.value = 'Too many failed attempts. Please try again later'
-            break
-          default:
-            error.value = 'Failed to login. Please try again'
-            console.error('Unhandled auth error:', err)
-        }
-        throw err
+        console.log('Login successful')
+      } else {
+        error.value = 'Invalid username or password'
+        throw new Error('Invalid credentials')
       }
     } catch (err) {
       if (!error.value) {
@@ -79,17 +43,10 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  const logout = async () => {
-    try {
-      await signOut(auth)
-      user.value = null
-      isAuthenticated.value = false
-      console.log('Logout successful')
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to logout'
-      console.error('Logout error:', err)
-      throw err
-    }
+  const logout = () => {
+    user.value = null
+    isAuthenticated.value = false
+    console.log('Logout successful')
   }
 
   return {

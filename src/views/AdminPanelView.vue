@@ -288,7 +288,7 @@ const activeSection = computed(() => {
     <header class="admin-header">
       <h1>Admin Panel</h1>
       <div class="admin-actions">
-        <span class="admin-email">{{ adminStore.user?.email }}</span>
+        <span class="admin-email">{{ adminStore.user?.username }}</span>
         <button @click="handleLogout" class="logout-button">
           Logout
         </button>
