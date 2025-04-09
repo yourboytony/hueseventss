@@ -163,18 +163,28 @@ onMounted(async () => {
     }
     
     // First fetch all events if they haven't been loaded yet
-    if (eventStore.events.length === 0) {
+    if (!eventStore.events || eventStore.events.length === 0) {
+      console.log('Fetching events...')
       await eventStore.fetchEvents()
+      
+      // Double check that events were loaded
+      if (!eventStore.events || eventStore.events.length === 0) {
+        throw new Error('Failed to load events')
+      }
     }
     
+    console.log('Looking for event:', eventId)
+    console.log('Available events:', eventStore.events)
+    
+    // Find the event in the store
     const foundEvent = eventStore.events.find(e => e.id === eventId)
     if (!foundEvent) {
-      throw new Error('Flight not found')
+      throw new Error(`Flight not found with ID: ${eventId}`)
     }
     
     // Validate required event properties
     if (!foundEvent.date || !foundEvent.time) {
-      throw new Error('Invalid event data: missing required properties')
+      throw new Error('Invalid event data: missing required properties (date or time)')
     }
     
     event.value = foundEvent
