@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEventsStore } from '@/stores/events'
 import { useBannedUsersStore } from '@/stores/bannedUsers'
-import type { Event } from '@/stores/events'
+import type { Event, Registration } from '@/stores/events'
 
 const route = useRoute()
 const router = useRouter()
@@ -62,10 +62,48 @@ const handleSubmit = async () => {
   if (!validateForm()) return
   
   try {
-    // Submit booking logic here
+    loading.value = true
+    error.value = ''
+    
+    if (!event.value) {
+      throw new Error('No event data available')
+    }
+
+    // Get the selected time from the route query
+    const selectedTime = route.query.selectedTime as string
+    if (!selectedTime) {
+      throw new Error('No time slot selected')
+    }
+
+    // Create the registration object
+    const registration: Registration = {
+      name: `${formData.value.firstName} ${formData.value.lastName}`,
+      vatsimCid: formData.value.vatsimCID,
+      email: formData.value.email,
+      aircraftType: formData.value.aircraftType,
+      route: formData.value.route,
+      notes: formData.value.notes,
+      registeredAt: new Date().toISOString(),
+      selectedTime: selectedTime
+    }
+
+    // Add registration to the event
+    const updatedEvent = {
+      ...event.value,
+      registrations: [...(event.value.registrations || []), registration],
+      availableSlots: (event.value.availableSlots || event.value.totalSlots) - 1
+    }
+
+    // Update the event in Firebase
+    await eventStore.updateEvent(updatedEvent)
+
+    // Redirect to success page or dashboard
     router.push('/dashboard')
   } catch (err) {
-    error.value = 'Failed to submit booking. Please try again.'
+    console.error('Error submitting booking:', err)
+    error.value = err instanceof Error ? err.message : 'Failed to submit booking. Please try again.'
+  } finally {
+    loading.value = false
   }
 }
 
