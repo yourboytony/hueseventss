@@ -244,36 +244,65 @@ onMounted(async () => {
           </div>
 
           <!-- Agreement -->
-          <div class="bg-white/5 rounded-lg p-6">
-            <h3 class="text-xl font-semibold mb-4">Agreement</h3>
+          <div class="bg-white rounded-lg p-8 shadow-lg">
+            <h3 class="text-2xl font-bold text-center text-[#002d65] mb-6">TERMS AND CONDITIONS</h3>
+            <p class="text-[#002d65] text-lg mb-6 text-center">By signing below, I understand and agree to the following terms:</p>
+            
             <div class="space-y-4">
-              <p class="text-gray-300">By submitting this form, you agree to:</p>
-              <ul class="list-disc list-inside text-gray-400 space-y-2">
-                <li>Follow all VATSIM Code of Conduct rules</li>
-                <li>Be present at least 30 minutes before the scheduled time</li>
-                <li>Have your flight plan filed before the event</li>
-                <li>Notify staff if you need to cancel your booking</li>
-              </ul>
-              
-              <div class="mt-4">
-                <label class="block text-sm font-medium text-gray-300 mb-2">Electronic Signature</label>
-                <input
-                  v-model="formData.agreementSignature"
-                  type="text"
-                  placeholder="Type your full name"
-                  class="w-full bg-white/10 border border-gray-600 rounded-md px-4 py-2 text-white"
-                  :class="{ 'border-red-500': errors.agreementSignature }"
-                >
-                <p v-if="errors.agreementSignature" class="mt-1 text-sm text-red-400">{{ errors.agreementSignature }}</p>
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                <span class="text-xl">✈️</span>
+                <p class="text-gray-700">I must push back at my assigned slot time.</p>
               </div>
+
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                <span class="text-xl">⚠️</span>
+                <p class="text-gray-700">Failure to push back at the assigned slot time may result in removal from this event and/or exclusion from future events.</p>
+              </div>
+
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                <span class="text-xl">👤</span>
+                <p class="text-gray-700">I must actually show up for my assigned slot.</p>
+              </div>
+
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                <span class="text-xl">🚫</span>
+                <p class="text-gray-700">No-shows may be banned from future events.</p>
+              </div>
+
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                <span class="text-xl">🔒</span>
+                <p class="text-gray-700">Slots are non-transferable without prior approval.</p>
+              </div>
+
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                <span class="text-xl">📋</span>
+                <p class="text-gray-700">I must be ready to fly at my assigned time with my flight plan filed.</p>
+              </div>
+
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                <span class="text-xl">⚡</span>
+                <p class="text-gray-700">I understand that failure to comply with these terms may result in immediate removal from the event and potential exclusion from future events.</p>
+              </div>
+            </div>
+
+            <div class="mt-8">
+              <label class="block text-lg font-semibold text-[#002d65] mb-2">Electronic Signature</label>
+              <input
+                v-model="formData.agreementSignature"
+                type="text"
+                placeholder="Type your full name as signature"
+                class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+                :class="{ 'border-red-500': errors.agreementSignature }"
+              >
+              <p v-if="errors.agreementSignature" class="mt-1 text-sm text-red-500">{{ errors.agreementSignature }}</p>
             </div>
           </div>
 
           <!-- Submit Button -->
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-6">
             <button
               type="submit"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+              class="bg-[#002d65] hover:bg-[#001f4b] text-white font-semibold py-3 px-8 rounded-lg transition-colors"
             >
               Submit Booking
             </button>
