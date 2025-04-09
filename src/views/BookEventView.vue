@@ -192,16 +192,11 @@ onMounted(async () => {
     // If no state in route, try localStorage
     if (!selectedTime) {
       selectedTime = localStorage.getItem('selectedTimeSlot')
+      console.log('Retrieved time slot from localStorage:', selectedTime)
     }
     
     if (!selectedTime) {
       throw new Error('No time slot selected')
-    }
-
-    // Update the selected time display in the template
-    const selectedTimeElement = document.querySelector('.info-item:nth-child(3)')
-    if (selectedTimeElement) {
-      selectedTimeElement.textContent = `Selected Time: ${selectedTime}`
     }
 
     // Fetch event data
@@ -211,8 +206,19 @@ onMounted(async () => {
     }
     
     event.value = foundEvent
+
+    // Update the route state with the selected time
+    if (!state && selectedTime) {
+      router.replace({
+        name: 'book-event',
+        params: {
+          id: eventId,
+          state: encodeURIComponent(JSON.stringify({ selectedTime }))
+        }
+      })
+    }
     
-    // Clear localStorage after successful load
+    // Clear localStorage after successful load and state update
     localStorage.removeItem('selectedTimeSlot')
     localStorage.removeItem('selectedEventId')
   } catch (err) {

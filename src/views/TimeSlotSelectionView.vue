@@ -227,7 +227,9 @@ const selectSlot = (slot: { time: string }) => {
   if (!event.value) return
   
   try {
-    // Store the selected time in localStorage
+    console.log('Storing selected time slot:', slot.time)
+    
+    // Store the selected time and event ID in localStorage
     localStorage.setItem('selectedTimeSlot', slot.time)
     localStorage.setItem('selectedEventId', event.value.id)
     
