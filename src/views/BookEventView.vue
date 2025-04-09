@@ -106,8 +106,8 @@ const handleSubmit = async () => {
     }
 
     // Check if the slot is still available
-    const existingRegistration = freshEvent.registrations?.find(
-      reg => reg.selectedTime === selectedTime
+    const existingRegistration = (freshEvent.registrations || []).find(
+      reg => reg?.selectedTime === selectedTime
     )
     if (existingRegistration) {
       throw new Error('This time slot has already been taken')
@@ -117,7 +117,7 @@ const handleSubmit = async () => {
     const updatedEvent = {
       ...freshEvent,
       registrations: freshEvent.registrations ? [...freshEvent.registrations, registration] : [registration],
-      availableSlots: Math.max(0, (freshEvent.availableSlots || freshEvent.totalSlots) - 1)
+      availableSlots: Math.max(0, (freshEvent.availableSlots || freshEvent.totalSlots || 20) - 1)
     }
 
     console.log('Updating event with data:', {

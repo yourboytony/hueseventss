@@ -12,6 +12,7 @@ export interface Registration {
   notes?: string
   registeredAt: string
   selectedTime: string // Time in Zulu format
+  callsign: string // Added callsign field
 }
 
 export interface Event {
