@@ -158,6 +158,9 @@ const handleSubmit = async () => {
 
 const loadEventData = async () => {
   try {
+    loading.value = true
+    error.value = ''
+    
     const eventId = route.params.id as string
     if (!eventId) {
       throw new Error('No event ID provided')
@@ -170,9 +173,12 @@ const loadEventData = async () => {
 
     event.value = loadedEvent
     selectedTime.value = route.query.time as string || '--:--Z'
-  } catch (error) {
-    console.error('Error loading event data:', error)
+  } catch (err: unknown) {
+    console.error('Error loading event data:', err)
+    error.value = err instanceof Error ? err.message : 'Failed to load event data'
     router.replace('/events')
+  } finally {
+    loading.value = false
   }
 }
 
