@@ -6,6 +6,7 @@ import AdminHeader from './components/AdminHeader.vue'
 import LoadingScreen from '@/components/LoadingScreen.vue'
 import PageTransition from '@/components/PageTransition.vue'
 import { db } from './firebase/config'
+import { ref as dbRef, onValue } from 'firebase/database'
 
 const adminStore = useAdminStore()
 const isLoading = ref(true)
@@ -20,7 +21,8 @@ onMounted(async () => {
       }, 5000)
 
       // Try to connect to Firebase
-      db.ref('.info/connected').on('value', (snapshot) => {
+      const connectedRef = dbRef(db, '.info/connected')
+      onValue(connectedRef, (snapshot) => {
         if (snapshot.val() === true) {
           clearTimeout(timeout)
           resolve(true)
@@ -44,7 +46,7 @@ onMounted(async () => {
   <div v-if="error" class="error-container">
     <h1>Error</h1>
     <p>{{ error }}</p>
-    <button @click="window.location.reload()">Reload Page</button>
+    <button @click="() => window.location.reload()">Reload Page</button>
   </div>
   <LoadingScreen v-else-if="isLoading" message="Welcome to HUES By Horizon" />
   
