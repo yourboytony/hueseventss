@@ -84,9 +84,9 @@ const handleSubmit = async () => {
       selectedTime: selectedTime
     })
 
-    // Create the registration object
-    const registration: Registration = {
-      name: `${formData.value.firstName} ${formData.value.lastName}`.trim(),
+    // Create the registration object with explicit type checking and defaults
+    const registration = {
+      name: `${formData.value.firstName.trim()} ${formData.value.lastName.trim()}`,
       vatsimCid: formData.value.vatsimCID.trim(),
       email: formData.value.email.trim(),
       aircraftType: formData.value.aircraftType.trim(),
@@ -95,7 +95,7 @@ const handleSubmit = async () => {
       registeredAt: new Date().toISOString(),
       selectedTime: selectedTime.trim(),
       callsign: formData.value.callsign.toUpperCase().trim()
-    }
+    } satisfies Registration
 
     console.log('Current event data:', event.value)
 
@@ -114,33 +114,33 @@ const handleSubmit = async () => {
     }
 
     // Create a complete copy of the event with all required fields
-    const updatedEvent: Event = {
-      ...freshEvent,
-      id: freshEvent.id,
-      title: freshEvent.title,
-      description: freshEvent.description,
-      date: freshEvent.date,
-      time: freshEvent.time,
-      endTime: freshEvent.endTime,
-      location: freshEvent.location,
-      imageUrl: freshEvent.imageUrl,
-      status: freshEvent.status,
-      createdAt: freshEvent.createdAt,
+    const updatedEvent = {
+      id: freshEvent.id || '',
+      title: freshEvent.title || '',
+      description: freshEvent.description || '',
+      date: freshEvent.date || '',
+      time: freshEvent.time || '',
+      endTime: freshEvent.endTime || '',
+      location: freshEvent.location || '',
+      imageUrl: freshEvent.imageUrl || '',
+      status: freshEvent.status || 'upcoming',
+      createdAt: freshEvent.createdAt || new Date().toISOString(),
       registrations: [...(freshEvent.registrations || []), registration],
       totalSlots: freshEvent.totalSlots || 20,
       availableSlots: Math.max(0, (freshEvent.availableSlots || freshEvent.totalSlots || 20) - 1),
       slotDurationMinutes: freshEvent.slotDurationMinutes || 2,
-      fromICAO: freshEvent.fromICAO,
-      toICAO: freshEvent.toICAO,
-      aircraft: freshEvent.aircraft,
-      flightLevel: freshEvent.flightLevel,
-      estimatedDuration: freshEvent.estimatedDuration
-    }
+      fromICAO: freshEvent.fromICAO || '',
+      toICAO: freshEvent.toICAO || '',
+      aircraft: freshEvent.aircraft || '',
+      flightLevel: freshEvent.flightLevel || '',
+      estimatedDuration: freshEvent.estimatedDuration || ''
+    } satisfies Event
 
     console.log('Updating event with data:', {
       id: updatedEvent.id,
       registrationsCount: updatedEvent.registrations.length,
-      availableSlots: updatedEvent.availableSlots
+      availableSlots: updatedEvent.availableSlots,
+      registration: registration // Log the registration object for debugging
     })
 
     // Update the event in Firebase
