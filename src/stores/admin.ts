@@ -1,13 +1,17 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { db } from '@/firebase/config'
 import { ref as dbRef, get } from 'firebase/database'
+import { auth } from '../firebase/config'
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
 export const useAdminStore = defineStore('admin', () => {
   const isAuthenticated = ref(false)
   const error = ref<string | null>(null)
   const isLoading = ref(false)
   const email = ref<string>('')
+
+  const isLoggedIn = computed(() => isAuthenticated.value)
 
   const login = async (username: string, password: string) => {
     isLoading.value = true
@@ -39,12 +43,14 @@ export const useAdminStore = defineStore('admin', () => {
   }
 
   const logout = () => {
+    signOut(auth)
     isAuthenticated.value = false
     email.value = ''
   }
 
   return {
     isAuthenticated,
+    isLoggedIn,
     error,
     isLoading,
     email,
