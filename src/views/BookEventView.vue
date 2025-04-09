@@ -166,19 +166,29 @@ const loadEventData = async () => {
       throw new Error('No event ID provided')
     }
 
+    console.log('Loading event with ID:', eventId)
     const loadedEvent = await eventStore.getEventById(eventId)
+    console.log('Loaded event:', loadedEvent)
+    
     if (!loadedEvent) {
       throw new Error('Event not found')
     }
 
     event.value = loadedEvent
     selectedTime.value = route.query.time as string || '--:--Z'
+    console.log('Set event and time:', { event: event.value, selectedTime: selectedTime.value })
   } catch (err: unknown) {
     console.error('Error loading event data:', err)
     error.value = err instanceof Error ? err.message : 'Failed to load event data'
     router.replace('/events')
   } finally {
     loading.value = false
+    console.log('Final state:', { 
+      loading: loading.value, 
+      error: error.value, 
+      event: event.value, 
+      selectedTime: selectedTime.value 
+    })
   }
 }
 
@@ -190,20 +200,17 @@ onMounted(async () => {
 
 <template>
   <div class="booking-page">
-    <div v-if="loading" class="loading-container">
-      <div class="spinner"></div>
-    </div>
-
-    <div v-else-if="error" class="error-container">
+    <div v-if="error" class="error-container">
       <div class="error-message">{{ error }}</div>
+      <button @click="loadEventData" class="retry-button">Retry</button>
     </div>
 
-    <div v-else-if="event" class="booking-container">
+    <div v-else class="booking-container">
       <!-- Header -->
       <div class="booking-header">
         <h1>Book Your Flight</h1>
         
-        <div class="flight-info-card">
+        <div v-if="event" class="flight-info-card">
           <div class="flight-info-grid">
             <div class="info-section">
               <h2>Flight Information</h2>
@@ -215,7 +222,7 @@ onMounted(async () => {
                 </p>
                 <p class="info-item">
                   <span class="icon">🕒</span>
-                  Selected Time: {{ $route.query.selectedTime }}
+                  Selected Time: {{ route.query.time }}
                 </p>
                 <p class="info-item">
                   <span class="icon">⏱</span>
@@ -401,41 +408,63 @@ onMounted(async () => {
   background-color: #0a192f;
   color: #fff;
   padding: 2rem 1rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .loading-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 50vh;
+  gap: 1rem;
 }
 
 .spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(59, 130, 246, 0.1);
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-left-color: #3b82f6;
   border-radius: 50%;
-  border-top-color: #3b82f6;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 50vh;
+  gap: 1rem;
+  text-align: center;
 }
 
 .error-message {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: #f87171;
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+.retry-button {
+  background: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.retry-button:hover {
+  background: #2563eb;
 }
 
 .booking-container {
