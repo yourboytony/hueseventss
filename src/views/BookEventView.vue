@@ -95,7 +95,7 @@ const handleSubmit = async () => {
       registeredAt: new Date().toISOString(),
       selectedTime: selectedTime.trim(),
       callsign: formData.value.callsign.toUpperCase().trim()
-    } satisfies Registration
+    }
 
     console.log('Current event data:', event.value)
 
@@ -115,7 +115,7 @@ const handleSubmit = async () => {
 
     // Create a complete copy of the event with all required fields
     const updatedEvent = {
-      id: freshEvent.id || '',
+      id: freshEvent.id,
       title: freshEvent.title || '',
       description: freshEvent.description || '',
       date: freshEvent.date || '',
@@ -134,13 +134,13 @@ const handleSubmit = async () => {
       aircraft: freshEvent.aircraft || '',
       flightLevel: freshEvent.flightLevel || '',
       estimatedDuration: freshEvent.estimatedDuration || ''
-    } satisfies Event
+    } as Event
 
     console.log('Updating event with data:', {
       id: updatedEvent.id,
       registrationsCount: updatedEvent.registrations.length,
       availableSlots: updatedEvent.availableSlots,
-      registration: registration // Log the registration object for debugging
+      registration: registration
     })
 
     // Update the event in Firebase
