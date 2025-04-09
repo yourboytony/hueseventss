@@ -111,95 +111,85 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#0a192f] text-white">
+  <div class="min-h-screen bg-[#0a192f] text-white py-12">
     <!-- Loading State -->
-    <div v-if="loading" class="container mx-auto px-4 py-16 text-center">
-      <div class="loading-spinner mx-auto mb-4"></div>
-      <p class="text-lg text-blue-300">Loading booking details...</p>
+    <div v-if="loading" class="flex items-center justify-center min-h-[400px]">
+      <div class="loading-spinner"></div>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="container mx-auto px-4 py-16 text-center">
-      <div class="bg-red-500/10 rounded-lg p-6 max-w-md mx-auto border border-red-500/20">
-        <svg class="w-12 h-12 text-red-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <p class="text-lg text-red-400">{{ error }}</p>
+    <div v-else-if="error" class="container mx-auto px-4">
+      <div class="max-w-2xl mx-auto bg-red-500/10 rounded-lg p-6 border border-red-500/20">
+        <p class="text-red-400 text-center">{{ error }}</p>
       </div>
     </div>
 
     <!-- Booking Form -->
-    <div v-else-if="event" class="container mx-auto px-4 py-8">
-      <div class="max-w-4xl mx-auto space-y-8">
-        <!-- Header -->
-        <div class="text-center">
-          <h1 class="text-4xl font-bold text-white mb-2">Book Your Flight</h1>
-          <p class="text-xl text-blue-300">{{ event.title }}</p>
-        </div>
+    <div v-else-if="event" class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <!-- Title Section -->
+        <div class="text-4xl font-bold text-white mb-2">Book Your Flight</div>
+        <div class="text-xl text-blue-400 mb-8">{{ event.title }}</div>
 
-        <!-- Flight Summary -->
-        <div class="bg-[#001529] rounded-lg p-6 border border-blue-500/20">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Flight Info Card -->
+        <div class="bg-[#001529] rounded-lg p-6 border border-blue-500/20 mb-8">
+          <div class="grid grid-cols-2 gap-6">
             <div>
-              <div class="text-lg font-mono mb-4">
-                <span class="text-blue-400">{{ event.fromICAO }}</span>
-                <span class="mx-3 text-gray-500">→</span>
-                <span class="text-blue-400">{{ event.toICAO }}</span>
-              </div>
-              <p class="text-blue-300 mb-2">Selected Time: {{ selectedTime }}</p>
-              <p class="text-gray-400">Duration: {{ event.estimatedDuration }}</p>
+              <div class="text-gray-400 mb-1">EDDF → LEPA</div>
+              <div class="text-blue-400">Selected Time: {{ selectedTime }}</div>
+              <div class="text-gray-400 mt-2">Duration: {{ event.estimatedDuration }}</div>
             </div>
-            <div class="space-y-2">
-              <p class="text-gray-300">Aircraft: <span class="text-blue-300">{{ event.aircraft }}</span></p>
-              <p class="text-gray-300">Flight Level: <span class="text-blue-300">FL{{ event.flightLevel }}</span></p>
+            <div>
+              <div class="text-gray-400">Aircraft: <span class="text-blue-400">{{ event.aircraft }}</span></div>
+              <div class="text-gray-400">Flight Level: <span class="text-blue-400">FL{{ event.flightLevel }}</span></div>
             </div>
           </div>
         </div>
 
-        <form @submit.prevent="handleSubmit" class="space-y-8">
+        <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Personal Information -->
           <div class="bg-[#001529] rounded-lg p-6 border border-blue-500/20">
-            <h3 class="text-xl font-semibold mb-6 text-blue-300">Personal Information</h3>
+            <div class="text-xl text-blue-400 mb-6">Personal Information</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">First Name</label>
+                <label class="text-gray-400 block mb-2">First Name</label>
                 <input
                   v-model="formData.firstName"
                   type="text"
-                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded-md px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   :class="{ 'border-red-500': errors.firstName }"
                 >
                 <p v-if="errors.firstName" class="mt-1 text-sm text-red-400">{{ errors.firstName }}</p>
               </div>
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Last Name</label>
+                <label class="text-gray-400 block mb-2">Last Name</label>
                 <input
                   v-model="formData.lastName"
                   type="text"
-                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded-md px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   :class="{ 'border-red-500': errors.lastName }"
                 >
                 <p v-if="errors.lastName" class="mt-1 text-sm text-red-400">{{ errors.lastName }}</p>
               </div>
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">VATSIM CID</label>
+                <label class="text-gray-400 block mb-2">VATSIM CID</label>
                 <input
                   v-model="formData.vatsimCID"
                   type="text"
-                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded-md px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   :class="{ 'border-red-500': errors.vatsimCID }"
                 >
                 <p v-if="errors.vatsimCID" class="mt-1 text-sm text-red-400">{{ errors.vatsimCID }}</p>
               </div>
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                <label class="text-gray-400 block mb-2">Email</label>
                 <input
                   v-model="formData.email"
                   type="email"
-                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded-md px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   :class="{ 'border-red-500': errors.email }"
                 >
                 <p v-if="errors.email" class="mt-1 text-sm text-red-400">{{ errors.email }}</p>
@@ -209,93 +199,93 @@ onMounted(async () => {
 
           <!-- Flight Details -->
           <div class="bg-[#001529] rounded-lg p-6 border border-blue-500/20">
-            <h3 class="text-xl font-semibold mb-6 text-blue-300">Flight Details</h3>
+            <div class="text-xl text-blue-400 mb-6">Flight Details</div>
             <div class="space-y-6">
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Aircraft Type</label>
+                <label class="text-gray-400 block mb-2">Aircraft Type</label>
                 <input
                   v-model="formData.aircraftType"
                   type="text"
-                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded-md px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   :class="{ 'border-red-500': errors.aircraftType }"
                 >
                 <p v-if="errors.aircraftType" class="mt-1 text-sm text-red-400">{{ errors.aircraftType }}</p>
               </div>
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Route</label>
+                <label class="text-gray-400 block mb-2">Route</label>
                 <input
                   v-model="formData.route"
                   type="text"
-                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded-md px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   :class="{ 'border-red-500': errors.route }"
                 >
                 <p v-if="errors.route" class="mt-1 text-sm text-red-400">{{ errors.route }}</p>
               </div>
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Additional Notes</label>
+                <label class="text-gray-400 block mb-2">Additional Notes</label>
                 <textarea
                   v-model="formData.notes"
                   rows="3"
-                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded-md px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  class="w-full bg-[#0a192f] border border-blue-500/30 rounded px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 ></textarea>
               </div>
             </div>
           </div>
 
           <!-- Terms and Conditions -->
-          <div class="bg-white rounded-xl p-8 border-2 border-[#002d65]">
-            <h3 class="text-2xl font-bold mb-6 text-[#002d65] text-center tracking-wide">TERMS AND CONDITIONS</h3>
-            <p class="text-[#002d65] mb-6 text-center">By signing below, I understand and agree to the following terms:</p>
+          <div class="bg-[#001529] rounded-lg p-6 border border-blue-500/20">
+            <div class="text-xl text-blue-400 mb-6 text-center">TERMS AND CONDITIONS</div>
+            <div class="text-gray-400 mb-6 text-center">By signing below, I understand and agree to the following terms:</div>
             
             <div class="space-y-4">
-              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
+              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded border border-blue-500/10">
                 <span class="text-xl">✈️</span>
-                <p class="text-[#002d65]">I must push back at my assigned slot time.</p>
+                <p class="text-gray-300">I must push back at my assigned slot time.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
+              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded border border-blue-500/10">
                 <span class="text-xl">⚠️</span>
-                <p class="text-[#002d65]">Failure to push back at the assigned slot time may result in removal from this event and/or exclusion from future events.</p>
+                <p class="text-gray-300">Failure to push back at the assigned slot time may result in removal from this event and/or exclusion from future events.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
+              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded border border-blue-500/10">
                 <span class="text-xl">👤</span>
-                <p class="text-[#002d65]">I must actually show up for my assigned slot.</p>
+                <p class="text-gray-300">I must actually show up for my assigned slot.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
+              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded border border-blue-500/10">
                 <span class="text-xl">🚫</span>
-                <p class="text-[#002d65]">No-shows may be banned from future events.</p>
+                <p class="text-gray-300">No-shows may be banned from future events.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
+              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded border border-blue-500/10">
                 <span class="text-xl">🔒</span>
-                <p class="text-[#002d65]">Slots are non-transferable without prior approval.</p>
+                <p class="text-gray-300">Slots are non-transferable without prior approval.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
+              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded border border-blue-500/10">
                 <span class="text-xl">📋</span>
-                <p class="text-[#002d65]">I must be ready to fly at my assigned time with my flight plan filed.</p>
+                <p class="text-gray-300">I must be ready to fly at my assigned time with my flight plan filed.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
+              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded border border-blue-500/10">
                 <span class="text-xl">⚡</span>
-                <p class="text-[#002d65]">I understand that failure to comply with these terms may result in immediate removal from the event and potential exclusion from future events.</p>
+                <p class="text-gray-300">I understand that failure to comply with these terms may result in immediate removal from the event and potential exclusion from future events.</p>
               </div>
             </div>
 
             <div class="mt-8">
-              <label class="block text-lg font-semibold text-[#002d65] mb-2">Electronic Signature</label>
+              <label class="text-gray-400 block mb-2">Electronic Signature</label>
               <input
                 v-model="formData.agreementSignature"
                 type="text"
                 placeholder="Type your full name as signature"
-                class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-[#002d65] focus:border-[#002d65] focus:ring-1 focus:ring-[#002d65] transition-colors"
+                class="w-full bg-[#0a192f] border border-blue-500/30 rounded px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 :class="{ 'border-red-500': errors.agreementSignature }"
               >
-              <p v-if="errors.agreementSignature" class="mt-1 text-sm text-red-500">{{ errors.agreementSignature }}</p>
+              <p v-if="errors.agreementSignature" class="mt-1 text-sm text-red-400">{{ errors.agreementSignature }}</p>
             </div>
           </div>
 
@@ -303,7 +293,7 @@ onMounted(async () => {
           <div class="flex justify-end">
             <button
               type="submit"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded transition-colors"
             >
               Submit Booking
             </button>
