@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const discordLink = "https://discord.gg/3aJYnaMnbU"
+const discordLink = "https://discord.gg/TMfc839qEY"
 
 const openDiscord = () => {
   window.open(discordLink, '_blank')
@@ -25,7 +25,7 @@ const navigateToEvents = () => {
           <span class="icon">📅</span>
           Book Event Slot
         </router-link>
-        <a href="https://discord.gg/your-discord" target="_blank" rel="noopener" class="secondary-button">
+        <a href="https://discord.gg/TMfc839qEY" target="_blank" rel="noopener" class="secondary-button">
           <span class="icon">💬</span>
           Join Discord
         </a>
