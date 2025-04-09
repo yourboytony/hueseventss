@@ -1,7 +1,7 @@
-import { initializeApp } from 'firebase/app'
-import { getDatabase } from 'firebase/database'
-import { getAuth } from 'firebase/auth'
-import { getAnalytics } from 'firebase/analytics'
+import { initializeApp, FirebaseApp } from 'firebase/app'
+import { getDatabase, Database } from 'firebase/database'
+import { getAuth, Auth } from 'firebase/auth'
+import { getAnalytics, Analytics } from 'firebase/analytics'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -16,10 +16,10 @@ const firebaseConfig = {
 
 console.log('Initializing Firebase with config:', firebaseConfig)
 
-let app
-let db
-let auth
-let analytics
+let app: FirebaseApp
+let db: Database
+let auth: Auth
+let analytics: Analytics
 
 try {
   app = initializeApp(firebaseConfig)

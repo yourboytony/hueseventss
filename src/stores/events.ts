@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { db } from '../firebase/config'
-import { ref as dbRef, get, update, push, set, remove } from 'firebase/database'
+import { ref as dbRef, get, update, push, set, remove, Database } from 'firebase/database'
 
 export interface Registration {
   name: string
@@ -45,7 +45,7 @@ export const useEventsStore = defineStore('events', () => {
     try {
       loading.value = true
       error.value = null
-      const eventsRef = dbRef(db, 'events')
+      const eventsRef = dbRef(db as Database, 'events')
       const snapshot = await get(eventsRef)
       
       if (snapshot.exists()) {
@@ -66,7 +66,7 @@ export const useEventsStore = defineStore('events', () => {
 
   const getEventById = async (id: string): Promise<Event | null> => {
     try {
-      const eventRef = dbRef(db, `events/${id}`)
+      const eventRef = dbRef(db as Database, `events/${id}`)
       const snapshot = await get(eventRef)
       
       if (!snapshot.exists()) {
@@ -87,7 +87,7 @@ export const useEventsStore = defineStore('events', () => {
     try {
       loading.value = true
       error.value = null
-      const eventsRef = dbRef(db, 'events')
+      const eventsRef = dbRef(db as Database, 'events')
       const newEventRef = push(eventsRef)
       const newEvent: Event = {
         ...eventData,
@@ -114,7 +114,7 @@ export const useEventsStore = defineStore('events', () => {
     try {
       loading.value = true
       error.value = null
-      const eventRef = dbRef(db, `events/${event.id}`)
+      const eventRef = dbRef(db as Database, `events/${event.id}`)
       await update(eventRef, event)
       await fetchEvents()
     } catch (err) {
@@ -129,7 +129,7 @@ export const useEventsStore = defineStore('events', () => {
     try {
       loading.value = true
       error.value = null
-      const eventRef = dbRef(db, `events/${eventId}`)
+      const eventRef = dbRef(db as Database, `events/${eventId}`)
       await remove(eventRef)
       await fetchEvents()
     } catch (err) {
@@ -142,7 +142,7 @@ export const useEventsStore = defineStore('events', () => {
 
   const registerForEvent = async (eventId: string, userId: string, timeSlot: string) => {
     try {
-      const eventRef = dbRef(db, `events/${eventId}`)
+      const eventRef = dbRef(db as Database, `events/${eventId}`)
       const snapshot = await get(eventRef)
       
       if (!snapshot.exists()) {
