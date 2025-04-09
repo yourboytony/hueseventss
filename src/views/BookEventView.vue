@@ -86,15 +86,15 @@ const handleSubmit = async () => {
 
     // Create the registration object
     const registration: Registration = {
-      name: `${formData.value.firstName} ${formData.value.lastName}`,
-      vatsimCid: formData.value.vatsimCID,
-      email: formData.value.email,
-      aircraftType: formData.value.aircraftType,
-      route: formData.value.route,
-      notes: formData.value.notes || '',
+      name: `${formData.value.firstName} ${formData.value.lastName}`.trim(),
+      vatsimCid: formData.value.vatsimCID.trim(),
+      email: formData.value.email.trim(),
+      aircraftType: formData.value.aircraftType.trim(),
+      route: formData.value.route.trim(),
+      notes: formData.value.notes?.trim() || '',
       registeredAt: new Date().toISOString(),
-      selectedTime: selectedTime,
-      callsign: formData.value.callsign.toUpperCase()
+      selectedTime: selectedTime.trim(),
+      callsign: formData.value.callsign.toUpperCase().trim()
     }
 
     console.log('Current event data:', event.value)
@@ -114,10 +114,27 @@ const handleSubmit = async () => {
     }
 
     // Create a complete copy of the event with all required fields
-    const updatedEvent = {
+    const updatedEvent: Event = {
       ...freshEvent,
-      registrations: freshEvent.registrations ? [...freshEvent.registrations, registration] : [registration],
-      availableSlots: Math.max(0, (freshEvent.availableSlots || freshEvent.totalSlots || 20) - 1)
+      id: freshEvent.id,
+      title: freshEvent.title,
+      description: freshEvent.description,
+      date: freshEvent.date,
+      time: freshEvent.time,
+      endTime: freshEvent.endTime,
+      location: freshEvent.location,
+      imageUrl: freshEvent.imageUrl,
+      status: freshEvent.status,
+      createdAt: freshEvent.createdAt,
+      registrations: [...(freshEvent.registrations || []), registration],
+      totalSlots: freshEvent.totalSlots || 20,
+      availableSlots: Math.max(0, (freshEvent.availableSlots || freshEvent.totalSlots || 20) - 1),
+      slotDurationMinutes: freshEvent.slotDurationMinutes || 2,
+      fromICAO: freshEvent.fromICAO,
+      toICAO: freshEvent.toICAO,
+      aircraft: freshEvent.aircraft,
+      flightLevel: freshEvent.flightLevel,
+      estimatedDuration: freshEvent.estimatedDuration
     }
 
     console.log('Updating event with data:', {
