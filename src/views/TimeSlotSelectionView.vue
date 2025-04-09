@@ -52,54 +52,72 @@ const formatTimeSlot = (date: Date, useZulu: boolean) => {
 const timeSlots = computed(() => {
   if (!event.value) return []
   
-  const slots = []
-  // Parse the event date string into a Date object
-  const eventDate = new Date(event.value.date)
-  
-  // Get start and end times in local time
-  const startTime = parseTimeString(event.value.time || '00:00', eventDate)
-  const endTime = parseTimeString(event.value.endTime || '23:59', eventDate)
-  
-  // Calculate total duration in minutes
-  const totalDuration = (endTime.getTime() - startTime.getTime()) / (1000 * 60)
-  
-  // Calculate number of slots based on slot duration
-  const slotDuration = event.value.slotDurationMinutes || 2
-  const numberOfSlots = Math.floor(totalDuration / slotDuration)
-  
-  // Get already booked slots
-  const bookedSlots = new Set(
-    (event.value.registrations || []).map(reg => reg.selectedTime)
-  )
-  
-  // Calculate maximum slots based on total slots or available slots
-  const maxSlots = Math.min(
-    numberOfSlots,
-    event.value.totalSlots || 20
-  )
-  
-  for (let i = 0; i < maxSlots; i++) {
-    // Create a new Date object for each slot
-    const slotTime = new Date(startTime)
-    // Add the slot duration
-    slotTime.setMinutes(slotTime.getMinutes() + (i * slotDuration))
+  try {
+    const slots = []
+    // Parse the event date string into a Date object
+    const eventDate = new Date(event.value.date)
+    if (isNaN(eventDate.getTime())) {
+      console.error('Invalid event date:', event.value.date)
+      return []
+    }
     
-    // For storing in Zulu time, convert to UTC
-    const utcSlotTime = new Date(slotTime.getTime() + slotTime.getTimezoneOffset() * 60000)
-    const timeString = formatTimeSlot(utcSlotTime, true) // Store in Zulu time
+    // Get start and end times in local time
+    const startTime = parseTimeString(event.value.time || '00:00', eventDate)
+    const endTime = parseTimeString(event.value.endTime || '23:59', eventDate)
     
-    // Create a new Date for comparison that accounts for timezone
-    const now = new Date()
+    if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+      console.error('Invalid time format:', { start: event.value.time, end: event.value.endTime })
+      return []
+    }
     
-    slots.push({
-      time: formatTimeSlot(slotTime, showZulu.value),
-      available: !bookedSlots.has(timeString) && slotTime > now,
-      rawTime: slotTime,
-      zulu: timeString // Store Zulu time for booking
-    })
+    // Calculate total duration in minutes
+    const totalDuration = (endTime.getTime() - startTime.getTime()) / (1000 * 60)
+    if (totalDuration <= 0) {
+      console.error('Invalid duration:', totalDuration)
+      return []
+    }
+    
+    // Calculate number of slots based on slot duration
+    const slotDuration = event.value.slotDurationMinutes || 2
+    const numberOfSlots = Math.floor(totalDuration / slotDuration)
+    
+    // Get already booked slots
+    const bookedSlots = new Set(
+      (event.value.registrations || []).map(reg => reg.selectedTime)
+    )
+    
+    // Calculate maximum slots based on total slots or available slots
+    const maxSlots = Math.min(
+      numberOfSlots,
+      event.value.totalSlots || 20
+    )
+    
+    for (let i = 0; i < maxSlots; i++) {
+      // Create a new Date object for each slot
+      const slotTime = new Date(startTime)
+      // Add the slot duration
+      slotTime.setMinutes(slotTime.getMinutes() + (i * slotDuration))
+      
+      // For storing in Zulu time, convert to UTC
+      const utcSlotTime = new Date(slotTime.getTime() + slotTime.getTimezoneOffset() * 60000)
+      const timeString = formatTimeSlot(utcSlotTime, true) // Store in Zulu time
+      
+      // Create a new Date for comparison that accounts for timezone
+      const now = new Date()
+      
+      slots.push({
+        time: formatTimeSlot(slotTime, showZulu.value),
+        available: !bookedSlots.has(timeString) && slotTime > now,
+        rawTime: slotTime,
+        zulu: timeString // Store Zulu time for booking
+      })
+    }
+    
+    return slots
+  } catch (error) {
+    console.error('Error calculating time slots:', error)
+    return []
   }
-  
-  return slots
 })
 
 const formatEventDate = (date: string) => {
@@ -140,6 +158,9 @@ const formatZuluTime = (timeStr: string | undefined, date: string) => {
 onMounted(async () => {
   try {
     const eventId = route.params.id as string
+    if (!eventId) {
+      throw new Error('No event ID provided')
+    }
     
     // First fetch all events if they haven't been loaded yet
     if (eventStore.events.length === 0) {
@@ -151,6 +172,11 @@ onMounted(async () => {
       throw new Error('Flight not found')
     }
     
+    // Validate required event properties
+    if (!foundEvent.date || !foundEvent.time) {
+      throw new Error('Invalid event data: missing required properties')
+    }
+    
     event.value = foundEvent
     // Delay showing content for smooth transition
     setTimeout(() => {
@@ -158,7 +184,7 @@ onMounted(async () => {
       showContent.value = true
     }, 1000)
   } catch (err) {
-    error.value = 'Failed to load flight details. Please try again.'
+    error.value = err instanceof Error ? err.message : 'Failed to load flight details. Please try again.'
     console.error('Error loading flight:', err)
     loading.value = false
   }
