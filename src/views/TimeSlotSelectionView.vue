@@ -20,33 +20,25 @@ const showZulu = ref(false)
 // Add transition control
 const showContent = ref(false)
 
-// Helper function to parse time string to Date
+// Helper function to parse time string to Date in PDT
 const parseTimeString = (timeStr: string, baseDate: Date) => {
   const [hours, minutes] = timeStr.split(':').map(Number)
-  // Create a new date object in local time
-  const localDate = new Date(baseDate)
-  localDate.setHours(hours, minutes, 0, 0)
-  return localDate
+  // Create a new date object in PDT
+  const pdtDate = new Date(baseDate)
+  // Set time in PDT
+  pdtDate.setHours(hours, minutes, 0, 0)
+  // Convert PDT to UTC by adding 7 hours (PDT is UTC-7)
+  const utcDate = new Date(pdtDate.getTime() + (7 * 60 * 60 * 1000))
+  return utcDate
 }
 
-const formatTimeSlot = (date: Date, useZulu: boolean) => {
-  if (useZulu) {
-    // For Zulu time, convert local to UTC and append 'Z'
-    const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000)
-    const timeString = utcDate.toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: 'UTC'
-    })
-    return timeString + 'Z'
-  }
-
-  // For local time, use the date directly
-  return date.toLocaleTimeString([], {
-    hour: 'numeric',
+const formatTimeSlot = (date: Date) => {
+  // Always format in UTC with Z suffix
+  return date.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
     minute: '2-digit',
-    hour12: false
-  }).replace(/\s/g, '')
+    timeZone: 'UTC'
+  }) + 'Z'
 }
 
 const timeSlots = computed(() => {
@@ -71,7 +63,7 @@ const timeSlots = computed(() => {
       return []
     }
     
-    // Get start and end times in local time
+    // Get start and end times in UTC (converted from PDT)
     const startTime = parseTimeString(event.value.time || '00:00', eventDate)
     const endTime = parseTimeString(event.value.endTime || '23:59', eventDate)
     
@@ -109,23 +101,22 @@ const timeSlots = computed(() => {
     )
     
     for (let i = 0; i < maxSlots; i++) {
-      // Create a new Date object for each slot
+      // Create a new Date object for each slot in UTC
       const slotTime = new Date(startTime)
       // Add the slot duration
       slotTime.setMinutes(slotTime.getMinutes() + (i * slotDuration))
       
-      // For storing in Zulu time, convert to UTC
-      const utcSlotTime = new Date(slotTime.getTime() + slotTime.getTimezoneOffset() * 60000)
-      const timeString = formatTimeSlot(utcSlotTime, true) // Store in Zulu time
+      // Format time in UTC
+      const timeString = formatTimeSlot(slotTime)
       
-      // Create a new Date for comparison that accounts for timezone
+      // Create a new Date for comparison
       const now = new Date()
       
       slots.push({
-        time: formatTimeSlot(slotTime, showZulu.value),
+        time: timeString, // Always show in UTC
         available: !bookedSlots.has(timeString) && slotTime > now,
         rawTime: slotTime,
-        zulu: timeString // Store Zulu time for booking
+        zulu: timeString
       })
     }
     
@@ -151,24 +142,24 @@ const formatEventDate = (date: string) => {
 }
 
 const formatZuluTime = (timeStr: string | undefined, date: string) => {
-  if (!timeStr) return '--:--'
+  if (!timeStr) return '--:--Z'
   
   const [hours, minutes] = timeStr.split(':').map(Number)
-  if (isNaN(hours) || isNaN(minutes)) return '--:--'
+  if (isNaN(hours) || isNaN(minutes)) return '--:--Z'
   
-  // Create date in local time zone
-  const localDate = new Date(date)
-  localDate.setHours(hours, minutes, 0, 0)
+  // Create date in PDT
+  const pdtDate = new Date(date)
+  pdtDate.setHours(hours, minutes, 0, 0)
   
-  // Convert to UTC by adding the timezone offset
-  const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000)
+  // Convert PDT to UTC by adding 7 hours
+  const utcDate = new Date(pdtDate.getTime() + (7 * 60 * 60 * 1000))
   
-  // Format in 24-hour time
+  // Format in UTC
   return utcDate.toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
     timeZone: 'UTC'
-  })
+  }) + 'Z'
 }
 
 const bookedSlotsCount = computed(() => {
@@ -271,48 +262,21 @@ const selectSlot = (slot: { time: string, zulu: string }) => {
             <div key="flight-card" class="flight-card">
               <div class="flight-header">
                 <h2>{{ event.title }}</h2>
-                <div class="notification-banner">
-                  {{ bookedSlotsCount }} slots booked
-                </div>
+                <div class="flight-date">{{ formatEventDate(event.date) }}</div>
               </div>
 
-              <div class="flight-info">
-                <div class="route-info">
-                  <div class="airport-info from">
-                    <span class="icao">{{ event.fromICAO }}</span>
-                    <div class="pulse-ring"></div>
-                  </div>
-                  <div class="flight-path">
-                    <div class="path-line">
-                      <div class="airplane">✈</div>
-                    </div>
-                    <span class="duration">{{ event.estimatedDuration }}</span>
-                  </div>
-                  <div class="airport-info to">
-                    <span class="icao">{{ event.toICAO }}</span>
-                    <div class="pulse-ring"></div>
-                  </div>
+              <div class="flight-details">
+                <div class="detail-item">
+                  <span class="icon">✈️</span>
+                  <span>{{ event.fromICAO }} → {{ event.toICAO }}</span>
                 </div>
-
-                <div class="flight-details">
-                  <div class="detail-item">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 7V3m8 4V3M3 21V7a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    <span>{{ formatEventDate(event.date) }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 19l9 2-9-18-9 18l9-2zm0 0v-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>{{ event.aircraft }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>FL{{ event.flightLevel }}</span>
-                  </div>
+                <div class="detail-item">
+                  <span class="icon">🕒</span>
+                  <span>{{ formatZuluTime(event.time, event.date) }} - {{ formatZuluTime(event.endTime, event.date) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="icon">📊</span>
+                  <span>{{ bookedSlotsCount }} / {{ event.totalSlots || 20 }} slots booked</span>
                 </div>
               </div>
             </div>
@@ -335,21 +299,23 @@ const selectSlot = (slot: { time: string, zulu: string }) => {
                 </GlowButton>
               </div>
 
-              <div class="slots-grid">
-                <button
-                  v-for="slot in timeSlots"
-                  :key="slot.time"
-                  class="slot-card"
-                  :class="{ 'taken': !slot.available }"
-                  :disabled="!slot.available"
-                  @click="selectSlot(slot)"
-                >
-                  <div class="time">{{ slot.time }}</div>
-                  <div class="status" :class="{ 'taken': !slot.available }">
-                    {{ slot.available ? 'Available' : 'Taken' }}
-                  </div>
-                  <div v-if="slot.available" class="hover-effect"></div>
-                </button>
+              <div class="time-slots-container">
+                <div class="time-slots-header">
+                  <h3>Available Time Slots (UTC/Zulu)</h3>
+                </div>
+                
+                <div class="time-slots-grid">
+                  <button
+                    v-for="slot in timeSlots"
+                    :key="slot.time"
+                    class="time-slot"
+                    :class="{ 'unavailable': !slot.available }"
+                    :disabled="!slot.available"
+                    @click="() => handleSlotSelect(slot.zulu)"
+                  >
+                    {{ slot.time }}
+                  </button>
+                </div>
               </div>
             </div>
           </transition-group>
@@ -469,7 +435,7 @@ h1 {
   letter-spacing: 0.01em;
 }
 
-.notification-banner {
+.flight-date {
   position: absolute;
   top: 1.25rem;
   right: 1.5rem;
@@ -483,78 +449,6 @@ h1 {
 
 .flight-info {
   padding: 1.25rem;
-}
-
-.route-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding: 1.25rem;
-  background: #f8faff;
-  border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
-}
-
-.airport-info {
-  text-align: center;
-  position: relative;
-}
-
-.icao {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #002d65;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  letter-spacing: 0.05em;
-}
-
-.flight-path {
-  position: relative;
-  width: 180px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.path-line {
-  position: relative;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, 
-    rgba(59, 130, 246, 0.2),
-    rgba(59, 130, 246, 0.4) 50%,
-    rgba(59, 130, 246, 0.2)
-  );
-}
-
-.airplane {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translate(-50%, -50%) rotate(0deg);
-  font-size: 1rem;
-  color: #3b82f6;
-  animation: fly 4s linear infinite;
-}
-
-.pulse-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid #3b82f6;
-  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-}
-
-.duration {
-  font-size: 0.75rem;
-  color: #6b7280;
-  font-weight: 500;
 }
 
 .flight-details {
@@ -593,14 +487,23 @@ h1 {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.slots-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
+.time-slots-container {
   margin-top: 1.5rem;
 }
 
-.slot-card {
+.time-slots-header {
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.time-slot {
   background: #f8faff;
   border: 2px solid #e5e7eb;
   border-radius: 0.75rem;
@@ -610,37 +513,17 @@ h1 {
   transition: all 0.2s ease;
 }
 
-.slot-card:not(.taken):hover {
+.time-slot:not(.unavailable):hover {
   transform: translateY(-2px);
   border-color: #3b82f6;
   box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
 }
 
-.slot-card.taken {
+.time-slot.unavailable {
   background: #f3f4f6;
   border-color: #d1d5db;
   cursor: not-allowed;
   opacity: 0.7;
-}
-
-.time {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.status {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.status:not(.taken) {
-  color: #059669;
-}
-
-.status.taken {
-  color: #dc2626;
 }
 
 .timezone-section {
