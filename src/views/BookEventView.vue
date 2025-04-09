@@ -19,6 +19,7 @@ const formData = ref({
   lastName: '',
   vatsimCID: '',
   email: '',
+  callsign: '',
   aircraftType: '',
   route: '',
   notes: '',
@@ -41,6 +42,11 @@ const validateForm = () => {
     newErrors.email = 'Email is required'
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.value.email)) {
     newErrors.email = 'Please enter a valid email address'
+  }
+  if (!formData.value.callsign) {
+    newErrors.callsign = 'Callsign is required'
+  } else if (!/^[A-Z0-9]{3,7}$/.test(formData.value.callsign.toUpperCase())) {
+    newErrors.callsign = 'Please enter a valid callsign (3-7 characters, letters and numbers only)'
   }
   if (!formData.value.aircraftType) newErrors.aircraftType = 'Aircraft type is required'
   if (!formData.value.route) newErrors.route = 'Route is required'
@@ -182,6 +188,17 @@ onMounted(async () => {
                 :class="{ 'has-error': errors.email }"
               >
               <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
+            </div>
+
+            <div class="input-group">
+              <label>Callsign</label>
+              <input
+                v-model="formData.callsign"
+                type="text"
+                placeholder="e.g. DAL123"
+                :class="{ 'has-error': errors.callsign }"
+              >
+              <span v-if="errors.callsign" class="error-text">{{ errors.callsign }}</span>
             </div>
           </div>
         </section>
