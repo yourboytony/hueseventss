@@ -1,6 +1,6 @@
 import { initializeApp, FirebaseApp } from 'firebase/app'
 import { getDatabase, Database } from 'firebase/database'
-import { getAuth, Auth } from 'firebase/auth'
+import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth'
 import { getAnalytics, Analytics } from 'firebase/analytics'
 
 // Log all environment variables (except sensitive ones)
@@ -43,9 +43,9 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 }
 
-console.log('Initializing Firebase with config:', {
+console.log('Firebase config:', {
   ...firebaseConfig,
-  apiKey: '[REDACTED]' // Don't log the actual API key
+  apiKey: '[REDACTED]'
 })
 
 let app: FirebaseApp
@@ -54,13 +54,40 @@ let auth: Auth
 let analytics: Analytics
 
 try {
+  // Initialize Firebase
   app = initializeApp(firebaseConfig)
-  db = getDatabase(app)
+  console.log('Firebase app initialized')
+
+  // Initialize Auth
   auth = getAuth(app)
+  console.log('Firebase auth initialized')
+
+  // Initialize Database
+  db = getDatabase(app)
+  console.log('Firebase database initialized')
+
+  // Initialize Analytics
   analytics = getAnalytics(app)
-  console.log('Firebase initialized successfully')
+  console.log('Firebase analytics initialized')
+
+  // Add auth state change listener for debugging
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      console.log('User is signed in:', user.uid)
+    } else {
+      console.log('User is signed out')
+    }
+  })
+
 } catch (error) {
   console.error('Error initializing Firebase:', error)
+  if (error instanceof Error) {
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    })
+  }
   throw error
 }
 

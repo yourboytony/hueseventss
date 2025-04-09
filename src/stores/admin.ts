@@ -13,10 +13,15 @@ export const useAdminStore = defineStore('admin', () => {
   onAuthStateChanged(auth, (currentUser) => {
     user.value = currentUser
     isAuthenticated.value = !!currentUser
+    console.log('Auth state changed:', { 
+      isAuthenticated: isAuthenticated.value,
+      userId: currentUser?.uid
+    })
   })
 
   const login = async (username: string, password: string) => {
     try {
+      console.log('Attempting login with username:', username)
       isLoading.value = true
       error.value = null
       
@@ -27,15 +32,22 @@ export const useAdminStore = defineStore('admin', () => {
 
       // Convert username to email format for Firebase
       const email = username.includes('@') ? username : `${username}@hues.admin`
+      console.log('Using email format:', email)
       
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password)
         user.value = userCredential.user
         isAuthenticated.value = true
+        console.log('Login successful:', userCredential.user.uid)
       } catch (authError) {
+        console.error('Auth error details:', authError)
         // Handle specific Firebase auth errors
         const err = authError as AuthError
         switch (err.code) {
+          case 'auth/configuration-not-found':
+            error.value = 'Authentication is not properly configured. Please contact support.'
+            console.error('Firebase configuration error. Please check Firebase Console settings.')
+            break
           case 'auth/user-not-found':
             error.value = 'Invalid username or password'
             break
@@ -53,7 +65,7 @@ export const useAdminStore = defineStore('admin', () => {
             break
           default:
             error.value = 'Failed to login. Please try again'
-            console.error('Auth error:', err)
+            console.error('Unhandled auth error:', err)
         }
         throw err
       }
@@ -72,8 +84,10 @@ export const useAdminStore = defineStore('admin', () => {
       await signOut(auth)
       user.value = null
       isAuthenticated.value = false
+      console.log('Logout successful')
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to logout'
+      console.error('Logout error:', err)
       throw err
     }
   }
