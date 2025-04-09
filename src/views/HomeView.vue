@@ -17,7 +17,7 @@ const navigateToEvents = () => {
   <div class="home">
     <div class="stars"></div>
     <div class="content">
-      <img src="https://i.postimg.cc/59Fbh7y0/image-2025-04-09-104746623.png" alt="HUES" class="logo fade-in" />
+      <img src="https://i.postimg.cc/KjXScbjY/image-2025-04-09-104954765.png" alt="HUES" class="logo fade-in" />
       <h1 class="slide-up text-gradient">Event Slot Booking</h1>
       <p class="subtitle slide-up">Join our exclusive events and secure your spot</p>
       <div class="button-group slide-up">
