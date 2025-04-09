@@ -1,23 +1,27 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { auth } from '../firebase/config'
-import { signInWithEmailAndPassword, signOut, Auth } from 'firebase/auth'
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth'
 
 export const useAdminStore = defineStore('admin', () => {
   const isAuthenticated = ref(false)
   const error = ref<string | null>(null)
   const isLoading = ref(false)
-  const email = ref('')
+  const user = ref<User | null>(null)
 
-  const isLoggedIn = computed(() => isAuthenticated.value)
+  // Initialize auth state listener
+  onAuthStateChanged(auth, (currentUser) => {
+    user.value = currentUser
+    isAuthenticated.value = !!currentUser
+  })
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     try {
       isLoading.value = true
       error.value = null
-      const userCredential = await signInWithEmailAndPassword(auth as Auth, username, password)
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      user.value = userCredential.user
       isAuthenticated.value = true
-      email.value = userCredential.user.email || ''
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to login'
       throw err
@@ -26,18 +30,22 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  const logout = () => {
-    signOut(auth as Auth)
-    isAuthenticated.value = false
-    email.value = ''
+  const logout = async () => {
+    try {
+      await signOut(auth)
+      user.value = null
+      isAuthenticated.value = false
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to logout'
+      throw err
+    }
   }
 
   return {
     isAuthenticated,
-    isLoggedIn,
     error,
     isLoading,
-    email,
+    user,
     login,
     logout
   }

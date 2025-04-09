@@ -59,13 +59,13 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to) => {
+router.beforeEach((to, from, next) => {
   const adminStore = useAdminStore()
-  const isAdminRoute = to.path.startsWith('/admin')
-  const isLoggedIn = adminStore.isLoggedIn
-
-  if (isAdminRoute && !isLoggedIn) {
-    return '/admin/login'
+  
+  if (to.meta.requiresAuth && !adminStore.isAuthenticated) {
+    next({ name: 'adminLogin' })
+  } else {
+    next()
   }
 })
 

@@ -2,8 +2,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useEventsStore } from '@/stores/events'
 import { useBannedUsersStore } from '@/stores/bannedUsers'
+import { useAdminStore } from '@/stores/admin'
+import { useRouter } from 'vue-router'
 import type { Event } from '@/stores/events'
 
+const adminStore = useAdminStore()
+const router = useRouter()
 const eventStore = useEventsStore()
 const bannedUsersStore = useBannedUsersStore()
 const activeTab = ref('slots')
@@ -111,8 +115,13 @@ const newBanForm = ref({
   bannedUntil: ''
 })
 
-// Load events on mount
+// Add authentication check
 onMounted(async () => {
+  if (!adminStore.isAuthenticated) {
+    router.push('/admin/login')
+    return
+  }
+  
   try {
     isLoading.value = true
     await eventStore.fetchEvents()
@@ -122,6 +131,15 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+const handleLogout = async () => {
+  try {
+    await adminStore.logout()
+    router.push('/admin/login')
+  } catch (error) {
+    console.error('Failed to logout:', error)
+  }
+}
 
 const handleBanUser = async () => {
   try {
@@ -267,6 +285,15 @@ const activeSection = computed(() => {
 
 <template>
   <div class="admin-panel">
+    <header class="admin-header">
+      <h1>Admin Panel</h1>
+      <div class="admin-actions">
+        <span class="admin-email">{{ adminStore.user?.email }}</span>
+        <button @click="handleLogout" class="logout-button">
+          Logout
+        </button>
+      </div>
+    </header>
     <div class="admin-tabs">
       <button 
         :class="['tab-button', { active: activeTab === 'slots' }]"
@@ -1281,5 +1308,42 @@ const activeSection = computed(() => {
   .guide-content {
     padding: 1.5rem;
   }
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-email {
+  color: white;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.logout-button {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background: #ff5252;
+  transform: translateY(-1px);
 }
 </style> 
