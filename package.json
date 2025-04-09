@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "create-admin": "node scripts/create-admin.js"
   },
   "dependencies": {
     "firebase": "^11.6.0",
