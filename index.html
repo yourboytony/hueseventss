@@ -9,5 +9,11 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      // Add error handling for module loading
+      window.addEventListener('error', (event) => {
+        console.error('Script loading error:', event);
+      });
+    </script>
   </body>
 </html> 
