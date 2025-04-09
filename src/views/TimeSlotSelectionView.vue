@@ -15,7 +15,6 @@ const eventStore = useEventsStore()
 const event = ref<Event | null>(null)
 const loading = ref(true)
 const error = ref('')
-const showZulu = ref(false)
 
 // Add transition control
 const showContent = ref(false)
@@ -283,25 +282,9 @@ const selectSlot = (slot: { time: string, zulu: string }) => {
 
             <!-- Time Slot Selection -->
             <div key="slot-selection" class="slot-selection">
-              <div class="timezone-section">
-                <div class="timezone-info">
-                  <svg class="clock-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 8V12L14 14M12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                  <span>Times shown in {{ showZulu ? 'Zulu (UTC)' : 'your local' }} timezone</span>
-                </div>
-                <GlowButton 
-                  @click="showZulu = !showZulu"
-                  variant="secondary"
-                  size="sm"
-                >
-                  Show {{ showZulu ? 'Local' : 'Zulu' }} Time
-                </GlowButton>
-              </div>
-
               <div class="time-slots-container">
                 <div class="time-slots-header">
-                  <h3>Available Time Slots (UTC/Zulu)</h3>
+                  <h3>Available Time Slots (UTC)</h3>
                 </div>
                 
                 <div class="time-slots-grid">
@@ -311,7 +294,7 @@ const selectSlot = (slot: { time: string, zulu: string }) => {
                     class="time-slot"
                     :class="{ 'unavailable': !slot.available }"
                     :disabled="!slot.available"
-                    @click="() => handleSlotSelect(slot.zulu)"
+                    @click="() => selectSlot(slot)"
                   >
                     {{ slot.time }}
                   </button>
@@ -488,7 +471,7 @@ h1 {
 }
 
 .time-slots-container {
-  margin-top: 1.5rem;
+  margin-top: 0;
 }
 
 .time-slots-header {
@@ -526,74 +509,6 @@ h1 {
   opacity: 0.7;
 }
 
-.timezone-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.timezone-info {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #4b5563;
-}
-
-.clock-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: #3b82f6;
-}
-
-.timezone-toggle {
-  padding: 0.5rem 1rem;
-  background: #002d65;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.timezone-toggle:hover {
-  background: #001f4b;
-  transform: translateY(-1px);
-}
-
-@media (max-width: 768px) {
-  .flight-details {
-    grid-template-columns: 1fr;
-  }
-  
-  .flight-path {
-    width: 120px;
-  }
-  
-  .icao {
-    font-size: 1rem;
-  }
-  
-  .notification-banner {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-  }
-  
-  .slots-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-  
-  .timezone-section {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-}
-
 .loading, .error {
   text-align: center;
   padding: 4rem 2rem;
@@ -629,38 +544,25 @@ h1 {
 }
 
 @media (max-width: 768px) {
-  .hero-section {
-    height: 250px;
+  .flight-details {
+    grid-template-columns: 1fr;
   }
   
-  h1 {
-    font-size: 2.5rem;
+  .flight-path {
+    width: 120px;
   }
   
-  .subtitle {
-    font-size: 1.1rem;
+  .icao {
+    font-size: 1rem;
   }
   
-  .content-wrapper {
-    padding: 0 1rem 2rem;
+  .notification-banner {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
   }
   
   .slots-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-  
-  .route {
-    flex-direction: row;
-    gap: 1rem;
-  }
-  
-  .airport {
-    font-size: 1.25rem;
-  }
-  
-  .meta {
-    flex-direction: column;
-    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }
 
