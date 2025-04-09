@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useAdminStore } from '@/stores/admin'
-import { useEventStore } from '@/stores/events'
+import { useEventsStore } from '@/stores/events'
 
 const adminStore = useAdminStore()
-const eventStore = useEventStore()
+const eventStore = useEventsStore()
 
 const handleLogout = () => {
   adminStore.logout()
