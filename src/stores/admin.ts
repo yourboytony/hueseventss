@@ -4,7 +4,7 @@ import { ref } from 'vue'
 // Hardcoded admin credentials
 const ADMIN_CREDENTIALS = {
   username: 'HUESAdmin',
-  password: 'HUESAdmin123!'
+  password: 'ev3nt$201H'
 }
 
 export const useAdminStore = defineStore('admin', () => {
