@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { db } from '../firebase/config'
-import { ref as dbRef, get, update } from 'firebase/database'
+import { ref as dbRef, get, update, push, set, remove } from 'firebase/database'
 
 export interface Registration {
   name: string
@@ -83,6 +83,63 @@ export const useEventsStore = defineStore('events', () => {
     }
   }
 
+  const addEvent = async (eventData: Omit<Event, 'id' | 'status' | 'createdAt' | 'registrations'>) => {
+    try {
+      loading.value = true
+      error.value = null
+      const eventsRef = dbRef(db, 'events')
+      const newEventRef = push(eventsRef)
+      const newEvent: Event = {
+        ...eventData,
+        id: newEventRef.key!,
+        status: 'upcoming',
+        createdAt: new Date().toISOString(),
+        registrations: [],
+        totalSlots: Number(eventData.totalSlots) || 20,
+        availableSlots: Number(eventData.availableSlots) || 20,
+        slotDurationMinutes: Number(eventData.slotDurationMinutes) || 2
+      }
+      await set(newEventRef, newEvent)
+      await fetchEvents()
+      return newEvent
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to add event'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const updateEvent = async (event: Event) => {
+    try {
+      loading.value = true
+      error.value = null
+      const eventRef = dbRef(db, `events/${event.id}`)
+      await update(eventRef, event)
+      await fetchEvents()
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to update event'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const deleteEvent = async (eventId: string) => {
+    try {
+      loading.value = true
+      error.value = null
+      const eventRef = dbRef(db, `events/${eventId}`)
+      await remove(eventRef)
+      await fetchEvents()
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to delete event'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   const registerForEvent = async (eventId: string, userId: string, timeSlot: string) => {
     try {
       const eventRef = dbRef(db, `events/${eventId}`)
@@ -117,6 +174,9 @@ export const useEventsStore = defineStore('events', () => {
     error,
     fetchEvents,
     getEventById,
+    addEvent,
+    updateEvent,
+    deleteEvent,
     registerForEvent
   }
 }) 

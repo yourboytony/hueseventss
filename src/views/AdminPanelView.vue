@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useEventStore } from '@/stores/events'
+import { useEventsStore } from '@/stores/events'
 import { useBannedUsersStore } from '@/stores/bannedUsers'
 import type { Event } from '@/stores/events'
 
-const eventStore = useEventStore()
+const eventStore = useEventsStore()
 const bannedUsersStore = useBannedUsersStore()
 const activeTab = ref('slots')
 const isCreatingBan = ref(false)
