@@ -11,6 +11,7 @@ const eventStore = useEventsStore()
 const bannedUsersStore = useBannedUsersStore()
 
 const event = ref<Event | null>(null)
+const selectedTime = ref<string>('--:--Z')
 const loading = ref(true)
 const error = ref('')
 
@@ -85,7 +86,7 @@ const handleSubmit = async () => {
     })
 
     // Create the registration object with explicit type checking and defaults
-    const registration = {
+    const registration: Registration = {
       name: `${formData.value.firstName.trim()} ${formData.value.lastName.trim()}`,
       vatsimCid: formData.value.vatsimCID.trim(),
       email: formData.value.email.trim(),
@@ -113,12 +114,12 @@ const handleSubmit = async () => {
       throw new Error('This time slot has already been taken')
     }
 
-    // Create a complete copy of the event with only the necessary fields
+    // Create a complete copy of the event with the new registration
     const updatedEvent = {
-      id: freshEvent.id,
+      ...freshEvent,  // Include all existing event data
       registrations: [...(freshEvent.registrations || []), registration],
       availableSlots: Math.max(0, (freshEvent.availableSlots || freshEvent.totalSlots || 20) - 1)
-    } as Event
+    }
 
     console.log('Updating event with data:', {
       id: updatedEvent.id,
@@ -131,17 +132,20 @@ const handleSubmit = async () => {
     await eventStore.updateEvent(updatedEvent)
     console.log('Event updated successfully')
 
+    // Clear local storage after successful submission
+    localStorage.removeItem('selectedEventId')
+    localStorage.removeItem('selectedTimeSlot')
+
     // Redirect to confirmation page with complete booking details
     router.push({
-      name: 'booking-confirmation',
-      params: { id: event.value.id },
-      query: {
-        name: `${formData.value.firstName} ${formData.value.lastName}`,
-        callsign: formData.value.callsign.toUpperCase(),
-        selectedTime: selectedTime,
-        fromICAO: event.value.fromICAO,
-        toICAO: event.value.toICAO,
-        aircraftType: formData.value.aircraftType
+      name: 'confirmation',
+      state: {
+        registration: {
+          name: registration.name,
+          callsign: registration.callsign,
+          selectedTime: registration.selectedTime,
+          eventName: event.value.title
+        }
       }
     })
   } catch (err) {
@@ -152,46 +156,29 @@ const handleSubmit = async () => {
   }
 }
 
-onMounted(async () => {
+const loadEventData = async () => {
   try {
-    loading.value = true
-    error.value = ''
-    
-    // Get event ID from route params
     const eventId = route.params.id as string
     if (!eventId) {
       throw new Error('No event ID provided')
     }
 
-    // Get selected time from query parameters
-    const selectedTime = route.query.selectedTime as string
-    if (!selectedTime) {
-      throw new Error('No time slot selected')
+    const loadedEvent = await eventStore.getEventById(eventId)
+    if (!loadedEvent) {
+      throw new Error('Event not found')
     }
 
-    console.log('Retrieved time slot from URL:', selectedTime)
-
-    // Fetch event data
-    const foundEvent = await eventStore.getEventById(eventId)
-    if (!foundEvent) {
-      throw new Error('Flight not found')
-    }
-    
-    event.value = foundEvent
-  } catch (err) {
-    console.error('Error loading event data:', err)
-    error.value = err instanceof Error ? err.message : 'Failed to load flight details'
-    // Only redirect if we can't find the event or no time slot is selected
-    if (err instanceof Error && 
-       (err.message === 'Flight not found' || err.message === 'No time slot selected')) {
-      router.replace({ 
-        name: 'select-slot', 
-        params: { id: route.params.id }
-      })
-    }
-  } finally {
-    loading.value = false
+    event.value = loadedEvent
+    selectedTime.value = route.query.time as string || '--:--Z'
+  } catch (error) {
+    console.error('Error loading event data:', error)
+    router.replace('/events')
   }
+}
+
+// Call loadEventData when the component is mounted
+onMounted(async () => {
+  await loadEventData()
 })
 </script>
 

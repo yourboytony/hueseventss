@@ -223,20 +223,24 @@ onUnmounted(() => {
   event.value = null
 })
 
-const selectSlot = (slot: { time: string }) => {
+const selectSlot = async (slot: TimeSlot) => {
   if (!event.value) return
   
   try {
-    console.log('Selected time slot:', slot.time)
+    loading.value = true
+    error.value = ''
     
-    // Navigate to booking page with query parameters
+    // Navigate to booking page with event ID and selected time as URL parameters
     router.push({
       name: 'book-event',
       params: { id: event.value.id },
-      query: { selectedTime: slot.time }
+      query: { time: slot.time }
     })
-  } catch (error) {
-    console.error('Error selecting time slot:', error)
+  } catch (err) {
+    console.error('Error selecting slot:', err)
+    error.value = err instanceof Error ? err.message : 'Failed to select time slot'
+  } finally {
+    loading.value = false
   }
 }
 </script>

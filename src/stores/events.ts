@@ -158,11 +158,14 @@ export const useEventsStore = defineStore('events', () => {
       if (!snapshot.exists()) {
         throw new Error('Event not found')
       }
-      
-      // Update only the necessary fields
+
+      // Ensure registrations is an array and filter out any undefined/null values
+      const registrations = (event.registrations || []).filter(reg => reg !== null && reg !== undefined)
+
+      // Create update data with only valid fields
       const updateData = {
-        registrations: event.registrations || [],
-        availableSlots: event.availableSlots
+        registrations: registrations,
+        availableSlots: typeof event.availableSlots === 'number' ? event.availableSlots : snapshot.val().availableSlots
       }
       
       await update(eventRef, updateData)
