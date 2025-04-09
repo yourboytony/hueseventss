@@ -86,54 +86,50 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#0a192f] text-white">
-    <div v-if="loading" class="flex items-center justify-center min-h-screen">
-      <div class="loading-spinner"></div>
+  <div class="booking-page">
+    <div v-if="loading" class="loading-container">
+      <div class="spinner"></div>
     </div>
 
-    <div v-else-if="error" class="flex items-center justify-center min-h-screen">
-      <div class="bg-red-500/10 text-red-400 px-6 py-4 rounded-lg border border-red-500/20">{{ error }}</div>
+    <div v-else-if="error" class="error-container">
+      <div class="error-message">{{ error }}</div>
     </div>
 
-    <div v-else-if="event" class="container mx-auto px-4 py-12 max-w-5xl">
-      <!-- Header Card -->
-      <div class="bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-2xl p-8 mb-12 border border-blue-500/20 backdrop-blur-sm">
-        <h1 class="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-          Book Your Flight
-        </h1>
+    <div v-else-if="event" class="booking-container">
+      <!-- Header -->
+      <div class="booking-header">
+        <h1>Book Your Flight</h1>
         
-        <div class="grid md:grid-cols-2 gap-8">
-          <div class="space-y-6">
-            <div>
-              <h2 class="text-lg font-medium text-blue-400 mb-2">Flight Information</h2>
-              <div class="space-y-3 text-gray-300">
-                <p class="text-xl font-semibold text-white">{{ event.title }}</p>
-                <p class="flex items-center gap-2">
-                  <span class="text-blue-400">✈</span>
+        <div class="flight-info-card">
+          <div class="flight-info-grid">
+            <div class="info-section">
+              <h2>Flight Information</h2>
+              <div class="info-content">
+                <p class="flight-title">{{ event.title }}</p>
+                <p class="info-item">
+                  <span class="icon">✈</span>
                   {{ event.fromICAO }} → {{ event.toICAO }}
                 </p>
-                <p class="flex items-center gap-2">
-                  <span class="text-blue-400">🕒</span>
+                <p class="info-item">
+                  <span class="icon">🕒</span>
                   Selected Time: 06:00Z
                 </p>
-                <p class="flex items-center gap-2">
-                  <span class="text-blue-400">⏱</span>
+                <p class="info-item">
+                  <span class="icon">⏱</span>
                   Duration: 2h 5m
                 </p>
               </div>
             </div>
-          </div>
-          
-          <div class="space-y-6">
-            <div>
-              <h2 class="text-lg font-medium text-blue-400 mb-2">Aircraft Details</h2>
-              <div class="space-y-3 text-gray-300">
-                <p class="flex items-center gap-2">
-                  <span class="text-blue-400">🛩</span>
+            
+            <div class="info-section">
+              <h2>Aircraft Details</h2>
+              <div class="info-content">
+                <p class="info-item">
+                  <span class="icon">🛩</span>
                   Aircraft: A320/A321/A319
                 </p>
-                <p class="flex items-center gap-2">
-                  <span class="text-blue-400">📊</span>
+                <p class="info-item">
+                  <span class="icon">📊</span>
                   Flight Level: PILOT DISCRETION
                 </p>
               </div>
@@ -142,106 +138,95 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Main Form -->
-      <div class="space-y-12">
+      <div class="form-sections">
         <!-- Personal Information -->
-        <section class="bg-white/5 rounded-2xl p-8 backdrop-blur-sm border border-blue-500/20">
-          <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
-            <span class="text-blue-400">👤</span>
-            Personal Information
-          </h2>
+        <section class="form-section">
+          <h2><span class="icon">👤</span> Personal Information</h2>
           
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="form-group">
+          <div class="form-grid">
+            <div class="input-group">
               <label>First Name</label>
               <input
                 v-model="formData.firstName"
                 type="text"
-                :class="{ 'error': errors.firstName }"
+                :class="{ 'has-error': errors.firstName }"
               >
-              <div v-if="errors.firstName" class="error-message">{{ errors.firstName }}</div>
+              <span v-if="errors.firstName" class="error-text">{{ errors.firstName }}</span>
             </div>
 
-            <div class="form-group">
+            <div class="input-group">
               <label>Last Name</label>
               <input
                 v-model="formData.lastName"
                 type="text"
-                :class="{ 'error': errors.lastName }"
+                :class="{ 'has-error': errors.lastName }"
               >
-              <div v-if="errors.lastName" class="error-message">{{ errors.lastName }}</div>
+              <span v-if="errors.lastName" class="error-text">{{ errors.lastName }}</span>
             </div>
 
-            <div class="form-group">
+            <div class="input-group">
               <label>VATSIM CID</label>
               <input
                 v-model="formData.vatsimCID"
                 type="text"
-                :class="{ 'error': errors.vatsimCID }"
+                :class="{ 'has-error': errors.vatsimCID }"
               >
-              <div v-if="errors.vatsimCID" class="error-message">{{ errors.vatsimCID }}</div>
+              <span v-if="errors.vatsimCID" class="error-text">{{ errors.vatsimCID }}</span>
             </div>
 
-            <div class="form-group">
+            <div class="input-group">
               <label>Email Address</label>
               <input
                 v-model="formData.email"
                 type="email"
-                :class="{ 'error': errors.email }"
+                :class="{ 'has-error': errors.email }"
               >
-              <div v-if="errors.email" class="error-message">{{ errors.email }}</div>
+              <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
             </div>
           </div>
         </section>
 
         <!-- Flight Details -->
-        <section class="bg-white/5 rounded-2xl p-8 backdrop-blur-sm border border-blue-500/20">
-          <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
-            <span class="text-blue-400">✈</span>
-            Flight Details
-          </h2>
+        <section class="form-section">
+          <h2><span class="icon">✈</span> Flight Details</h2>
           
-          <div class="space-y-6">
-            <div class="form-group">
+          <div class="form-stack">
+            <div class="input-group">
               <label>Aircraft Type</label>
               <input
                 v-model="formData.aircraftType"
                 type="text"
-                :class="{ 'error': errors.aircraftType }"
+                :class="{ 'has-error': errors.aircraftType }"
               >
-              <div v-if="errors.aircraftType" class="error-message">{{ errors.aircraftType }}</div>
+              <span v-if="errors.aircraftType" class="error-text">{{ errors.aircraftType }}</span>
             </div>
 
-            <div class="form-group">
+            <div class="input-group">
               <label>Route</label>
               <input
                 v-model="formData.route"
                 type="text"
-                :class="{ 'error': errors.route }"
+                :class="{ 'has-error': errors.route }"
               >
-              <div v-if="errors.route" class="error-message">{{ errors.route }}</div>
+              <span v-if="errors.route" class="error-text">{{ errors.route }}</span>
             </div>
 
-            <div class="form-group">
+            <div class="input-group">
               <label>Additional Notes</label>
               <textarea
                 v-model="formData.notes"
                 rows="3"
-                class="resize-none"
               ></textarea>
             </div>
           </div>
         </section>
 
         <!-- Terms and Conditions -->
-        <section class="bg-white/5 rounded-2xl p-8 backdrop-blur-sm border border-blue-500/20">
-          <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
-            <span class="text-blue-400">📋</span>
-            Terms and Conditions
-          </h2>
+        <section class="form-section">
+          <h2><span class="icon">📋</span> Terms and Conditions</h2>
 
-          <div class="bg-black/20 rounded-xl p-6 mb-8">
-            <div class="space-y-4">
+          <div class="terms-container">
+            <div class="terms-list">
               <div class="term-item">
                 <span class="term-icon">✈️</span>
                 <p>I must push back at my assigned slot time.</p>
@@ -273,22 +258,21 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="input-group signature-group">
             <label>Electronic Signature</label>
             <input
               v-model="formData.agreementSignature"
               type="text"
               placeholder="Type your full name to agree to the terms"
-              :class="{ 'error': errors.agreementSignature }"
+              :class="{ 'has-error': errors.agreementSignature }"
             >
-            <div v-if="errors.agreementSignature" class="error-message">{{ errors.agreementSignature }}</div>
+            <span v-if="errors.agreementSignature" class="error-text">{{ errors.agreementSignature }}</span>
           </div>
         </section>
 
-        <!-- Submit Button -->
         <button
           @click="handleSubmit"
-          class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-8 rounded-xl font-semibold text-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#0a192f] shadow-lg shadow-blue-500/20"
+          class="submit-button"
         >
           Submit Booking
         </button>
@@ -298,7 +282,21 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.loading-spinner {
+.booking-page {
+  min-height: 100vh;
+  background-color: #0a192f;
+  color: #fff;
+  padding: 2rem 1rem;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.spinner {
   width: 48px;
   height: 48px;
   border: 4px solid rgba(59, 130, 246, 0.1);
@@ -308,70 +306,232 @@ onMounted(async () => {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-.form-group {
-  @apply space-y-2;
-}
-
-.form-group label {
-  @apply block text-sm font-medium text-gray-300;
-}
-
-.form-group input,
-.form-group textarea {
-  @apply w-full bg-black/20 border border-blue-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 transition-all duration-200;
-  @apply hover:border-blue-500/40;
-  @apply focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500;
-}
-
-.form-group input.error,
-.form-group textarea.error {
-  @apply border-red-500;
+.error-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 .error-message {
-  @apply text-sm text-red-400 mt-1;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.booking-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.booking-header {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.booking-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  background: linear-gradient(to right, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.flight-info-card {
+  background: rgba(30, 58, 138, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 1rem;
+  padding: 2rem;
+  backdrop-filter: blur(8px);
+}
+
+.flight-info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .flight-info-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.info-section h2 {
+  color: #60a5fa;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.flight-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #94a3b8;
+}
+
+.icon {
+  color: #60a5fa;
+}
+
+.form-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.form-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.form-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.input-group input:hover,
+.input-group textarea:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.input-group input.has-error,
+.input-group textarea.has-error {
+  border-color: #ef4444;
+}
+
+.error-text {
+  color: #f87171;
+  font-size: 0.875rem;
+}
+
+.terms-container {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.terms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .term-item {
-  @apply flex items-start gap-3 text-gray-300;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: #94a3b8;
 }
 
 .term-icon {
-  @apply flex-shrink-0 mt-1;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
 }
 
-/* Transitions */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+.signature-group {
+  margin-top: 1.5rem;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.submit-button {
+  width: 100%;
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .container {
-    @apply px-4;
-  }
-  
-  section {
-    @apply p-6;
-  }
-  
-  h1 {
-    @apply text-3xl;
-  }
-  
-  h2 {
-    @apply text-xl;
-  }
+.submit-button:hover {
+  background: linear-gradient(to right, #2563eb, #1d4ed8);
+  transform: translateY(-1px);
+}
+
+.submit-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #3b82f6;
+}
+
+.submit-button:active {
+  transform: translateY(0);
 }
 </style> 
