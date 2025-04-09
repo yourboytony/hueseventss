@@ -157,24 +157,19 @@ const formatZuluTime = (timeStr: string | undefined, date: string) => {
 
 onMounted(async () => {
   try {
+    loading.value = true
     const eventId = route.params.id as string
     if (!eventId) {
       throw new Error('No event ID provided')
     }
     
-    // First fetch all events if they haven't been loaded yet
-    if (!eventStore.events || eventStore.events.length === 0) {
-      console.log('Fetching events...')
-      await eventStore.fetchEvents()
-      
-      // Double check that events were loaded
-      if (!eventStore.events || eventStore.events.length === 0) {
-        throw new Error('Failed to load events')
-      }
-    }
+    // Wait for events to be loaded
+    await eventStore.fetchEvents()
     
-    console.log('Looking for event:', eventId)
-    console.log('Available events:', eventStore.events)
+    // Check if events were loaded successfully
+    if (!eventStore.initialized.value) {
+      throw new Error('Failed to initialize events')
+    }
     
     // Find the event in the store
     const foundEvent = eventStore.events.find(e => e.id === eventId)
@@ -188,6 +183,8 @@ onMounted(async () => {
     }
     
     event.value = foundEvent
+    error.value = ''
+    
     // Delay showing content for smooth transition
     setTimeout(() => {
       loading.value = false
@@ -197,6 +194,7 @@ onMounted(async () => {
     error.value = err instanceof Error ? err.message : 'Failed to load flight details. Please try again.'
     console.error('Error loading flight:', err)
     loading.value = false
+    showContent.value = false
   }
 })
 

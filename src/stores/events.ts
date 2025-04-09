@@ -40,8 +40,13 @@ export const useEventsStore = defineStore('events', () => {
   const events = ref<Event[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const initialized = ref(false)
 
   const fetchEvents = async () => {
+    if (initialized.value && events.value.length > 0) {
+      return events.value
+    }
+
     try {
       loading.value = true
       error.value = null
@@ -57,11 +62,15 @@ export const useEventsStore = defineStore('events', () => {
       } else {
         events.value = []
       }
+      initialized.value = true
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch events'
+      events.value = []
     } finally {
       loading.value = false
     }
+    
+    return events.value
   }
 
   const getEventById = async (id: string): Promise<Event | null> => {
@@ -172,6 +181,7 @@ export const useEventsStore = defineStore('events', () => {
     events,
     loading,
     error,
+    initialized,
     fetchEvents,
     getEventById,
     addEvent,
