@@ -17,7 +17,7 @@ const navigateToEvents = () => {
   <div class="home">
     <div class="stars"></div>
     <div class="content">
-      <img src="https://i.postimg.cc/JnDRbrkm/HUES-LOGO01.webp" alt="HUES" class="logo fade-in" />
+      <img src="https://i.postimg.cc/59Fbh7y0/image-2025-04-09-104746623.png" alt="HUES" class="logo fade-in" />
       <h1 class="slide-up text-gradient">Event Slot Booking</h1>
       <p class="subtitle slide-up">Join our exclusive events and secure your spot</p>
       <div class="button-group slide-up">
@@ -76,23 +76,23 @@ const navigateToEvents = () => {
 .content {
   max-width: 800px;
   width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  position: relative;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
 }
 
 .logo {
-  width: 100%;
-  max-width: 500px;
-  filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
+  width: 300px;
+  height: auto;
+  margin-bottom: 2rem;
   transition: transform 0.3s ease;
-  margin-bottom: 0;
+  filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
 }
 
 .logo:hover {
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
 h1 {
