@@ -65,22 +65,29 @@ const timeSlots = computed(() => {
     }
     
     // Get start and end times in UTC (converted from PDT)
-    const startTime = parseTimeString(event.value.time || '00:00', eventDate)
-    const endTime = parseTimeString(event.value.endTime || '23:59', eventDate)
+    const [startHours, startMinutes] = (event.value.time || '00:00').split(':').map(Number)
+    const [endHours, endMinutes] = (event.value.endTime || '23:59').split(':').map(Number)
+    
+    // Convert PDT to UTC by adding 7 hours
+    const startTimeUTC = new Date(eventDate)
+    startTimeUTC.setUTCHours(startHours + 7, startMinutes, 0, 0)
+    
+    const endTimeUTC = new Date(eventDate)
+    endTimeUTC.setUTCHours(endHours + 7, endMinutes, 0, 0)
     
     console.log('TimeSlotSelectionView: Parsed times:', {
       eventDate: eventDate.toISOString(),
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString()
+      startTimeUTC: startTimeUTC.toISOString(),
+      endTimeUTC: endTimeUTC.toISOString()
     })
     
-    if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+    if (isNaN(startTimeUTC.getTime()) || isNaN(endTimeUTC.getTime())) {
       console.error('Invalid time format:', { start: event.value.time, end: event.value.endTime })
       return []
     }
     
     // Calculate total duration in minutes
-    const totalDuration = (endTime.getTime() - startTime.getTime()) / (1000 * 60)
+    const totalDuration = (endTimeUTC.getTime() - startTimeUTC.getTime()) / (1000 * 60)
     if (totalDuration <= 0) {
       console.error('Invalid duration:', totalDuration)
       return []
@@ -102,13 +109,14 @@ const timeSlots = computed(() => {
     )
     
     for (let i = 0; i < maxSlots; i++) {
-      // Create a new Date object for each slot in UTC
-      const slotTime = new Date(startTime)
-      // Add the slot duration
+      // Create a new Date object for each slot starting from UTC time
+      const slotTime = new Date(startTimeUTC)
       slotTime.setMinutes(slotTime.getMinutes() + (i * slotDuration))
       
       // Format time in UTC
-      const timeString = formatTimeSlot(slotTime)
+      const hours = slotTime.getUTCHours().toString().padStart(2, '0')
+      const minutes = slotTime.getUTCMinutes().toString().padStart(2, '0')
+      const timeString = `${hours}:${minutes}Z`
       
       // Create a new Date for comparison
       const now = new Date()
