@@ -50,9 +50,19 @@ const formatTimeSlot = (date: Date, useZulu: boolean) => {
 }
 
 const timeSlots = computed(() => {
-  if (!event.value) return []
+  if (!event.value) {
+    console.log('TimeSlotSelectionView: No event data available for time slot calculation')
+    return []
+  }
   
   try {
+    console.log('TimeSlotSelectionView: Calculating time slots with data:', {
+      date: event.value.date,
+      startTime: event.value.time,
+      endTime: event.value.endTime,
+      slotDuration: event.value.slotDurationMinutes || 2
+    })
+    
     const slots = []
     // Parse the event date string into a Date object
     const eventDate = new Date(event.value.date)
@@ -64,6 +74,12 @@ const timeSlots = computed(() => {
     // Get start and end times in local time
     const startTime = parseTimeString(event.value.time || '00:00', eventDate)
     const endTime = parseTimeString(event.value.endTime || '23:59', eventDate)
+    
+    console.log('TimeSlotSelectionView: Parsed times:', {
+      eventDate: eventDate.toISOString(),
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString()
+    })
     
     if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
       console.error('Invalid time format:', { start: event.value.time, end: event.value.endTime })
@@ -169,7 +185,7 @@ onMounted(async () => {
       throw new Error('No event ID provided')
     }
     
-    console.log('Fetching event details for:', eventId)
+    console.log('TimeSlotSelectionView: Mounting with event ID:', eventId)
     
     // Try to get the specific event first
     const foundEvent = await eventStore.getEventById(eventId)
@@ -182,13 +198,22 @@ onMounted(async () => {
       throw new Error('Invalid event data: missing required properties (date or time)')
     }
     
-    console.log('Event loaded successfully:', foundEvent.title)
+    console.log('TimeSlotSelectionView: Event data:', {
+      title: foundEvent.title,
+      date: foundEvent.date,
+      time: foundEvent.time,
+      endTime: foundEvent.endTime,
+      registrations: foundEvent.registrations?.length || 0
+    })
+    
     event.value = foundEvent
     
     // Delay showing content for smooth transition
     setTimeout(() => {
       loading.value = false
       showContent.value = true
+      console.log('TimeSlotSelectionView: Content shown, calculating time slots...')
+      console.log('TimeSlotSelectionView: Available time slots:', timeSlots.value.length)
     }, 1000)
   } catch (err) {
     console.error('Error in TimeSlotSelectionView:', err)
