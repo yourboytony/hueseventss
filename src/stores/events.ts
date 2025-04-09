@@ -43,50 +43,77 @@ export const useEventsStore = defineStore('events', () => {
   const initialized = ref(false)
 
   const fetchEvents = async () => {
-    if (initialized.value && events.value.length > 0) {
-      return events.value
-    }
-
     try {
       loading.value = true
       error.value = null
+      
+      console.log('Fetching events from Firebase...')
       const eventsRef = dbRef(db as Database, 'events')
       const snapshot = await get(eventsRef)
       
       if (snapshot.exists()) {
+        console.log('Events data received from Firebase')
         const eventsData = snapshot.val()
         events.value = Object.entries(eventsData).map(([id, data]: [string, any]) => ({
           id,
           ...data
         })) as Event[]
+        console.log(`Processed ${events.value.length} events`)
       } else {
+        console.log('No events found in Firebase')
         events.value = []
       }
+      
       initialized.value = true
+      console.log('Events store initialized successfully')
+      return events.value
     } catch (err) {
+      console.error('Error fetching events:', err)
       error.value = err instanceof Error ? err.message : 'Failed to fetch events'
       events.value = []
+      // Don't set initialized to false if we've already initialized once
+      return []
     } finally {
       loading.value = false
     }
-    
-    return events.value
   }
 
   const getEventById = async (id: string): Promise<Event | null> => {
     try {
+      if (!initialized.value) {
+        console.log('Store not initialized, fetching events first...')
+        await fetchEvents()
+      }
+
+      // First try to find the event in the existing events array
+      let event = events.value.find(e => e.id === id)
+      if (event) {
+        console.log('Event found in store:', id)
+        return event
+      }
+
+      console.log('Event not found in store, fetching from Firebase:', id)
       const eventRef = dbRef(db as Database, `events/${id}`)
       const snapshot = await get(eventRef)
       
       if (!snapshot.exists()) {
+        console.log('Event not found in Firebase:', id)
         return null
       }
 
-      return {
+      event = {
         id,
         ...snapshot.val()
       } as Event
+
+      // Update the events array with the new event
+      if (!events.value.some(e => e.id === id)) {
+        events.value.push(event)
+      }
+
+      return event
     } catch (err) {
+      console.error('Error fetching event by ID:', err)
       error.value = err instanceof Error ? err.message : 'Failed to fetch event'
       return null
     }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEventsStore } from '@/stores/events'
 import type { Event } from '@/stores/events'
@@ -158,21 +158,17 @@ const formatZuluTime = (timeStr: string | undefined, date: string) => {
 onMounted(async () => {
   try {
     loading.value = true
+    error.value = ''
+    
     const eventId = route.params.id as string
     if (!eventId) {
       throw new Error('No event ID provided')
     }
     
-    // Wait for events to be loaded
-    await eventStore.fetchEvents()
+    console.log('Fetching event details for:', eventId)
     
-    // Check if events were loaded successfully
-    if (!eventStore.initialized.value) {
-      throw new Error('Failed to initialize events')
-    }
-    
-    // Find the event in the store
-    const foundEvent = eventStore.events.find(e => e.id === eventId)
+    // Try to get the specific event first
+    const foundEvent = await eventStore.getEventById(eventId)
     if (!foundEvent) {
       throw new Error(`Flight not found with ID: ${eventId}`)
     }
@@ -182,8 +178,8 @@ onMounted(async () => {
       throw new Error('Invalid event data: missing required properties (date or time)')
     }
     
+    console.log('Event loaded successfully:', foundEvent.title)
     event.value = foundEvent
-    error.value = ''
     
     // Delay showing content for smooth transition
     setTimeout(() => {
@@ -191,11 +187,19 @@ onMounted(async () => {
       showContent.value = true
     }, 1000)
   } catch (err) {
+    console.error('Error in TimeSlotSelectionView:', err)
     error.value = err instanceof Error ? err.message : 'Failed to load flight details. Please try again.'
-    console.error('Error loading flight:', err)
     loading.value = false
     showContent.value = false
   }
+})
+
+// Add cleanup on component unmount
+onUnmounted(() => {
+  loading.value = false
+  error.value = ''
+  showContent.value = false
+  event.value = null
 })
 
 const selectSlot = (slot: { time: string, zulu: string }) => {
