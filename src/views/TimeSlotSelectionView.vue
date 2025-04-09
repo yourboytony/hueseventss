@@ -155,6 +155,10 @@ const formatZuluTime = (timeStr: string | undefined, date: string) => {
   })
 }
 
+const bookedSlotsCount = computed(() => {
+  return event.value?.registrations?.length || 0
+})
+
 onMounted(async () => {
   try {
     loading.value = true
@@ -243,7 +247,7 @@ const selectSlot = (slot: { time: string, zulu: string }) => {
               <div class="flight-header">
                 <h2>{{ event.title }}</h2>
                 <div class="notification-banner">
-                  {{ event.registrations.length }} slots booked
+                  {{ bookedSlotsCount }} slots booked
                 </div>
               </div>
 
