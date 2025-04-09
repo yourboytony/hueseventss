@@ -20,11 +20,17 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vue-vendor': ['vue', 'vue-router', 'pinia']
-        }
+        },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     }
   },
   server: {
-    port: 3000
+    port: 3000,
+    headers: {
+      'Content-Type': 'application/javascript'
+    }
   }
 }) 
