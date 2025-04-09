@@ -15,11 +15,21 @@ const firebaseConfig = {
 }
 
 console.log('Initializing Firebase with config:', firebaseConfig)
-const app = initializeApp(firebaseConfig)
-const db = getDatabase(app)
-console.log('Database initialized:', db)
 
-const auth = getAuth(app)
-const analytics = getAnalytics(app)
+let app
+let db
+let auth
+let analytics
+
+try {
+  app = initializeApp(firebaseConfig)
+  db = getDatabase(app)
+  auth = getAuth(app)
+  analytics = getAnalytics(app)
+  console.log('Firebase initialized successfully')
+} catch (error) {
+  console.error('Error initializing Firebase:', error)
+  throw error
+}
 
 export { app, db, auth, analytics } 

@@ -8,20 +8,31 @@ import PageTransition from '@/components/PageTransition.vue'
 
 const adminStore = useAdminStore()
 const isLoading = ref(true)
+const error = ref<string | null>(null)
 
 onMounted(() => {
-  // Simulate initial loading
-  setTimeout(() => {
-    isLoading.value = false
-  }, 2000)
+  try {
+    // Simulate initial loading with a shorter timeout
+    setTimeout(() => {
+      isLoading.value = false
+    }, 1000)
+  } catch (err) {
+    error.value = 'An error occurred while loading the application'
+    console.error('App initialization error:', err)
+  }
 })
 </script>
 
 <template>
-  <LoadingScreen v-if="isLoading" message="Welcome to HUES By Horizon" />
+  <div v-if="error" class="error-container">
+    <h1>Error</h1>
+    <p>{{ error }}</p>
+    <button @click="window.location.reload()">Reload Page</button>
+  </div>
+  <LoadingScreen v-else-if="isLoading" message="Welcome to HUES By Horizon" />
   
-  <PageTransition name="scale">
-    <div v-show="!isLoading" class="app-container">
+  <PageTransition v-else name="scale">
+    <div class="app-container">
       <AdminHeader />
       <main class="main-content">
         <RouterView v-slot="{ Component }">
@@ -180,5 +191,34 @@ body {
 
 .main-content::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-container h1 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.error-container button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.error-container button:hover {
+  background-color: var(--secondary-color);
 }
 </style> 
