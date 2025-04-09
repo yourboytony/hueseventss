@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { db } from '../firebase/config'
-import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore'
-import type { Event } from './event'
+import { ref as dbRef, get, update } from 'firebase/database'
 
 export interface Registration {
   name: string
@@ -46,12 +45,18 @@ export const useEventsStore = defineStore('events', () => {
     try {
       loading.value = true
       error.value = null
-      const eventsCollection = collection(db, 'events')
-      const querySnapshot = await getDocs(eventsCollection)
-      events.value = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Event[]
+      const eventsRef = dbRef(db, 'events')
+      const snapshot = await get(eventsRef)
+      
+      if (snapshot.exists()) {
+        const eventsData = snapshot.val()
+        events.value = Object.entries(eventsData).map(([id, data]: [string, any]) => ({
+          id,
+          ...data
+        })) as Event[]
+      } else {
+        events.value = []
+      }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch events'
     } finally {
@@ -61,16 +66,16 @@ export const useEventsStore = defineStore('events', () => {
 
   const getEventById = async (id: string): Promise<Event | null> => {
     try {
-      const eventDoc = doc(db, 'events', id)
-      const eventSnapshot = await getDoc(eventDoc)
+      const eventRef = dbRef(db, `events/${id}`)
+      const snapshot = await get(eventRef)
       
-      if (!eventSnapshot.exists()) {
+      if (!snapshot.exists()) {
         return null
       }
 
       return {
-        id: eventSnapshot.id,
-        ...eventSnapshot.data()
+        id,
+        ...snapshot.val()
       } as Event
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch event'
@@ -80,21 +85,21 @@ export const useEventsStore = defineStore('events', () => {
 
   const registerForEvent = async (eventId: string, userId: string, timeSlot: string) => {
     try {
-      const eventDoc = doc(db, 'events', eventId)
-      const eventSnapshot = await getDoc(eventDoc)
+      const eventRef = dbRef(db, `events/${eventId}`)
+      const snapshot = await get(eventRef)
       
-      if (!eventSnapshot.exists()) {
+      if (!snapshot.exists()) {
         throw new Error('Event not found')
       }
 
-      const event = eventSnapshot.data() as Event
+      const event = snapshot.val() as Event
       const currentSlots = event.availableSlots ?? event.totalSlots
 
       if (currentSlots <= 0) {
         throw new Error('No available slots')
       }
 
-      await updateDoc(eventDoc, {
+      await update(eventRef, {
         registrations: [...(event.registrations || []), { userId, timeSlot, status: 'pending' }],
         availableSlots: (currentSlots - 1)
       })

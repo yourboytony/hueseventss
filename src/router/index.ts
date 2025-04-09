@@ -59,7 +59,7 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   const adminStore = useAdminStore()
   const isAdminRoute = to.path.startsWith('/admin')
   const isLoggedIn = adminStore.isLoggedIn
