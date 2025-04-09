@@ -113,27 +113,11 @@ const handleSubmit = async () => {
       throw new Error('This time slot has already been taken')
     }
 
-    // Create a complete copy of the event with all required fields
+    // Create a complete copy of the event with only the necessary fields
     const updatedEvent = {
       id: freshEvent.id,
-      title: freshEvent.title || '',
-      description: freshEvent.description || '',
-      date: freshEvent.date || '',
-      time: freshEvent.time || '',
-      endTime: freshEvent.endTime || '',
-      location: freshEvent.location || '',
-      imageUrl: freshEvent.imageUrl || '',
-      status: freshEvent.status || 'upcoming',
-      createdAt: freshEvent.createdAt || new Date().toISOString(),
       registrations: [...(freshEvent.registrations || []), registration],
-      totalSlots: freshEvent.totalSlots || 20,
-      availableSlots: Math.max(0, (freshEvent.availableSlots || freshEvent.totalSlots || 20) - 1),
-      slotDurationMinutes: freshEvent.slotDurationMinutes || 2,
-      fromICAO: freshEvent.fromICAO || '',
-      toICAO: freshEvent.toICAO || '',
-      aircraft: freshEvent.aircraft || '',
-      flightLevel: freshEvent.flightLevel || '',
-      estimatedDuration: freshEvent.estimatedDuration || ''
+      availableSlots: Math.max(0, (freshEvent.availableSlots || freshEvent.totalSlots || 20) - 1)
     } as Event
 
     console.log('Updating event with data:', {

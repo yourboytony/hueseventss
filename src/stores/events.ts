@@ -152,7 +152,20 @@ export const useEventsStore = defineStore('events', () => {
       loading.value = true
       error.value = null
       const eventRef = dbRef(db as Database, `events/${event.id}`)
-      await update(eventRef, event)
+      
+      // Get current event data
+      const snapshot = await get(eventRef)
+      if (!snapshot.exists()) {
+        throw new Error('Event not found')
+      }
+      
+      // Update only the necessary fields
+      const updateData = {
+        registrations: event.registrations || [],
+        availableSlots: event.availableSlots
+      }
+      
+      await update(eventRef, updateData)
       await fetchEvents()
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to update event'
