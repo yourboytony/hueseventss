@@ -133,16 +133,14 @@ const handleSubmit = async () => {
     // Redirect to confirmation page with complete booking details
     router.push({
       name: 'booking-confirmation',
-      params: { 
-        id: event.value.id,
-        state: JSON.stringify({
-          name: `${formData.value.firstName} ${formData.value.lastName}`,
-          callsign: formData.value.callsign.toUpperCase(),
-          selectedTime: selectedTime,
-          fromICAO: event.value.fromICAO,
-          toICAO: event.value.toICAO,
-          aircraftType: formData.value.aircraftType
-        })
+      params: { id: event.value.id },
+      query: {
+        name: `${formData.value.firstName} ${formData.value.lastName}`,
+        callsign: formData.value.callsign.toUpperCase(),
+        selectedTime: selectedTime,
+        fromICAO: event.value.fromICAO,
+        toICAO: event.value.toICAO,
+        aircraftType: formData.value.aircraftType
       }
     })
   } catch (err) {
@@ -223,7 +221,7 @@ onMounted(async () => {
                 </p>
                 <p class="info-item">
                   <span class="icon">🕒</span>
-                  Selected Time: 06:00Z
+                  Selected Time: {{ $route.query.selectedTime }}
                 </p>
                 <p class="info-item">
                   <span class="icon">⏱</span>
