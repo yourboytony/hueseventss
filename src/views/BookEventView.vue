@@ -245,57 +245,57 @@ onMounted(async () => {
           </div>
 
           <!-- Terms and Conditions -->
-          <div class="bg-[#001529] rounded-lg p-6 border border-blue-500/20">
-            <h3 class="text-xl font-semibold mb-6 text-blue-300 text-center">TERMS AND CONDITIONS</h3>
-            <p class="text-gray-300 mb-6 text-center">By signing below, I understand and agree to the following terms:</p>
+          <div class="bg-white rounded-xl p-8 border-2 border-[#002d65]">
+            <h3 class="text-2xl font-bold mb-6 text-[#002d65] text-center tracking-wide">TERMS AND CONDITIONS</h3>
+            <p class="text-[#002d65] mb-6 text-center">By signing below, I understand and agree to the following terms:</p>
             
             <div class="space-y-4">
-              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded-lg border border-blue-500/10">
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
                 <span class="text-xl">✈️</span>
-                <p class="text-gray-300">I must push back at my assigned slot time.</p>
+                <p class="text-[#002d65]">I must push back at my assigned slot time.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded-lg border border-blue-500/10">
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
                 <span class="text-xl">⚠️</span>
-                <p class="text-gray-300">Failure to push back at the assigned slot time may result in removal from this event and/or exclusion from future events.</p>
+                <p class="text-[#002d65]">Failure to push back at the assigned slot time may result in removal from this event and/or exclusion from future events.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded-lg border border-blue-500/10">
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
                 <span class="text-xl">👤</span>
-                <p class="text-gray-300">I must actually show up for my assigned slot.</p>
+                <p class="text-[#002d65]">I must actually show up for my assigned slot.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded-lg border border-blue-500/10">
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
                 <span class="text-xl">🚫</span>
-                <p class="text-gray-300">No-shows may be banned from future events.</p>
+                <p class="text-[#002d65]">No-shows may be banned from future events.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded-lg border border-blue-500/10">
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
                 <span class="text-xl">🔒</span>
-                <p class="text-gray-300">Slots are non-transferable without prior approval.</p>
+                <p class="text-[#002d65]">Slots are non-transferable without prior approval.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded-lg border border-blue-500/10">
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
                 <span class="text-xl">📋</span>
-                <p class="text-gray-300">I must be ready to fly at my assigned time with my flight plan filed.</p>
+                <p class="text-[#002d65]">I must be ready to fly at my assigned time with my flight plan filed.</p>
               </div>
 
-              <div class="flex items-start space-x-3 p-4 bg-[#0a192f] rounded-lg border border-blue-500/10">
+              <div class="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg border-l-4 border-[#002d65]">
                 <span class="text-xl">⚡</span>
-                <p class="text-gray-300">I understand that failure to comply with these terms may result in immediate removal from the event and potential exclusion from future events.</p>
+                <p class="text-[#002d65]">I understand that failure to comply with these terms may result in immediate removal from the event and potential exclusion from future events.</p>
               </div>
             </div>
 
             <div class="mt-8">
-              <label class="block text-sm font-medium text-gray-300 mb-2">Electronic Signature</label>
+              <label class="block text-lg font-semibold text-[#002d65] mb-2">Electronic Signature</label>
               <input
                 v-model="formData.agreementSignature"
                 type="text"
                 placeholder="Type your full name as signature"
-                class="w-full bg-[#0a192f] border border-blue-500/30 rounded-md px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-[#002d65] focus:border-[#002d65] focus:ring-1 focus:ring-[#002d65] transition-colors"
                 :class="{ 'border-red-500': errors.agreementSignature }"
               >
-              <p v-if="errors.agreementSignature" class="mt-1 text-sm text-red-400">{{ errors.agreementSignature }}</p>
+              <p v-if="errors.agreementSignature" class="mt-1 text-sm text-red-500">{{ errors.agreementSignature }}</p>
             </div>
           </div>
 
