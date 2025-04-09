@@ -59,7 +59,10 @@ const validateForm = () => {
 }
 
 const handleSubmit = async () => {
-  if (!validateForm()) return
+  if (!validateForm()) {
+    console.log('Form validation failed:', errors.value)
+    return
+  }
   
   try {
     loading.value = true
@@ -75,6 +78,12 @@ const handleSubmit = async () => {
       throw new Error('No time slot selected')
     }
 
+    console.log('Creating registration with data:', {
+      name: `${formData.value.firstName} ${formData.value.lastName}`,
+      callsign: formData.value.callsign.toUpperCase(),
+      selectedTime: selectedTime
+    })
+
     // Create the registration object
     const registration: Registration = {
       name: `${formData.value.firstName} ${formData.value.lastName}`,
@@ -82,23 +91,60 @@ const handleSubmit = async () => {
       email: formData.value.email,
       aircraftType: formData.value.aircraftType,
       route: formData.value.route,
-      notes: formData.value.notes,
+      notes: formData.value.notes || '',
       registeredAt: new Date().toISOString(),
-      selectedTime: selectedTime
+      selectedTime: selectedTime,
+      callsign: formData.value.callsign.toUpperCase()
     }
 
-    // Add registration to the event
-    const updatedEvent = {
-      ...event.value,
-      registrations: [...(event.value.registrations || []), registration],
-      availableSlots: (event.value.availableSlots || event.value.totalSlots) - 1
+    console.log('Current event data:', event.value)
+
+    // Get fresh event data to ensure we have the latest state
+    const freshEvent = await eventStore.getEventById(event.value.id)
+    if (!freshEvent) {
+      throw new Error('Event not found')
     }
+
+    // Check if the slot is still available
+    const existingRegistration = freshEvent.registrations?.find(
+      reg => reg.selectedTime === selectedTime
+    )
+    if (existingRegistration) {
+      throw new Error('This time slot has already been taken')
+    }
+
+    // Create a complete copy of the event with all required fields
+    const updatedEvent = {
+      ...freshEvent,
+      registrations: freshEvent.registrations ? [...freshEvent.registrations, registration] : [registration],
+      availableSlots: Math.max(0, (freshEvent.availableSlots || freshEvent.totalSlots) - 1)
+    }
+
+    console.log('Updating event with data:', {
+      id: updatedEvent.id,
+      registrationsCount: updatedEvent.registrations.length,
+      availableSlots: updatedEvent.availableSlots
+    })
 
     // Update the event in Firebase
     await eventStore.updateEvent(updatedEvent)
+    console.log('Event updated successfully')
 
-    // Redirect to success page or dashboard
-    router.push('/dashboard')
+    // Redirect to confirmation page with complete booking details
+    router.push({
+      name: 'booking-confirmation',
+      params: { 
+        id: event.value.id,
+        state: JSON.stringify({
+          name: `${formData.value.firstName} ${formData.value.lastName}`,
+          callsign: formData.value.callsign.toUpperCase(),
+          selectedTime: selectedTime,
+          fromICAO: event.value.fromICAO,
+          toICAO: event.value.toICAO,
+          aircraftType: formData.value.aircraftType
+        })
+      }
+    })
   } catch (err) {
     console.error('Error submitting booking:', err)
     error.value = err instanceof Error ? err.message : 'Failed to submit booking. Please try again.'
