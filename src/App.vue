@@ -5,20 +5,37 @@ import { useAdminStore } from '@/stores/admin'
 import AdminHeader from './components/AdminHeader.vue'
 import LoadingScreen from '@/components/LoadingScreen.vue'
 import PageTransition from '@/components/PageTransition.vue'
+import { db } from './firebase/config'
 
 const adminStore = useAdminStore()
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
-onMounted(() => {
+onMounted(async () => {
   try {
-    // Simulate initial loading with a shorter timeout
+    // Test Firebase connection
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Firebase connection timeout'))
+      }, 5000)
+
+      // Try to connect to Firebase
+      db.ref('.info/connected').on('value', (snapshot) => {
+        if (snapshot.val() === true) {
+          clearTimeout(timeout)
+          resolve(true)
+        }
+      })
+    })
+
+    // If we get here, Firebase is connected
     setTimeout(() => {
       isLoading.value = false
     }, 1000)
   } catch (err) {
-    error.value = 'An error occurred while loading the application'
     console.error('App initialization error:', err)
+    error.value = 'Failed to connect to the server. Please try again later.'
+    isLoading.value = false
   }
 })
 </script>
