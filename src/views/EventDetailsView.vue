@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useEventStore } from '@/stores/events'
+import { useEventsStore } from '@/stores/events'
 import type { Event } from '@/stores/events'
 
 const route = useRoute()
 const router = useRouter()
-const eventStore = useEventStore()
+const eventStore = useEventsStore()
 
 const event = ref<Event | null>(null)
 const loading = ref(true)

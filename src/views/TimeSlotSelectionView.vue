@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useEventStore } from '@/stores/events'
+import { useEventsStore } from '@/stores/events'
 import type { Event } from '@/stores/events'
 import PageTransition from '@/components/PageTransition.vue'
 import LoadingScreen from '@/components/LoadingScreen.vue'
@@ -11,7 +11,7 @@ import MobileContainer from '@/components/MobileContainer.vue'
 
 const route = useRoute()
 const router = useRouter()
-const eventStore = useEventStore()
+const eventStore = useEventsStore()
 const event = ref<Event | null>(null)
 const loading = ref(true)
 const error = ref('')

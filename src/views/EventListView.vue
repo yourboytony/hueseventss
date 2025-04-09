@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, watch, computed } from 'vue'
-import { useEventStore } from '@/stores/events'
+import { useEventsStore } from '@/stores/events'
 import EventCard from '@/components/EventCard.vue'
 
-const eventStore = useEventStore()
+const eventStore = useEventsStore()
 
 onMounted(async () => {
   console.log('EventListView mounted, fetching events...')

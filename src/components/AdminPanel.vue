@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAdminStore } from '@/stores/admin'
-import { useEventStore } from '@/stores/events'
+import { useEventsStore } from '@/stores/events'
+import type { Event } from '@/stores/events'
 
 const adminStore = useAdminStore()
-const eventStore = useEventStore()
+const eventStore = useEventsStore()
 
 const newEvent = ref({
   title: '',
