@@ -1,6 +1,6 @@
 import { initializeApp, FirebaseApp } from 'firebase/app'
 import { getDatabase, Database } from 'firebase/database'
-import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth'
+import { getAuth, Auth } from 'firebase/auth'
 import { getAnalytics, Analytics } from 'firebase/analytics'
 
 // Log all environment variables (except sensitive ones)
