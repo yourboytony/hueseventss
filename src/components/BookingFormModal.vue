@@ -304,35 +304,89 @@ onMounted(() => {
 
               <!-- Terms and Conditions -->
               <section class="form-section">
-                <h2><span class="icon">📋</span> Terms and Conditions</h2>
+                <h2><span class="icon">📋</span> Important Information</h2>
 
                 <div class="terms-container">
-                  <div class="terms-list">
-                    <div class="term-item">
-                      <span class="term-icon">✈️</span>
-                      <p>I must push back at my assigned slot time.</p>
+                  <div class="info-section">
+                    <h3>Slot Time Information</h3>
+                    <div class="terms-list">
+                      <div class="term-item">
+                        <span class="term-icon">⏰</span>
+                        <p>Your slot time is your <strong>TAKE OFF</strong> time, not pushback time.</p>
+                      </div>
+                      <div class="term-item">
+                        <span class="term-icon">⚠️</span>
+                        <p>You must be ready to take off at your assigned slot time. Plan your pushback accordingly.</p>
+                      </div>
+                      <div class="term-item">
+                        <span class="term-icon">❌</span>
+                        <p>If you miss your slot, you are <strong>NOT</strong> guaranteed another departure slot due to high traffic volume.</p>
+                      </div>
                     </div>
-                    <div class="term-item">
-                      <span class="term-icon">⚠️</span>
-                      <p>Failure to push back at the assigned slot time may result in removal from this event and/or exclusion from future events.</p>
+                  </div>
+
+                  <div class="info-section">
+                    <h3>Pre-Flight Requirements</h3>
+                    <div class="terms-list">
+                      <div class="term-item">
+                        <span class="term-icon">📝</span>
+                        <p>File your flight plan at least 30 minutes before your slot time.</p>
+                      </div>
+                      <div class="term-item">
+                        <span class="term-icon">🎯</span>
+                        <p>Be at your gate, ready for pushback, 10 minutes before your slot time.</p>
+                      </div>
+                      <div class="term-item">
+                        <span class="term-icon">🔄</span>
+                        <p>Monitor ATC frequencies for any last-minute changes or instructions.</p>
+                      </div>
                     </div>
-                    <div class="term-item">
-                      <span class="term-icon">👤</span>
-                      <p>I must actually show up for my assigned slot.</p>
+                  </div>
+
+                  <div class="info-section">
+                    <h3>Event Policies</h3>
+                    <div class="terms-list">
+                      <div class="term-item">
+                        <span class="term-icon">🚫</span>
+                        <p>No-shows may be banned from future events.</p>
+                      </div>
+                      <div class="term-item">
+                        <span class="term-icon">🔒</span>
+                        <p>Slots are non-transferable without prior approval from event coordinators.</p>
+                      </div>
+                      <div class="term-item">
+                        <span class="term-icon">⚡</span>
+                        <p>Failure to comply with these terms may result in immediate removal from the event.</p>
+                      </div>
                     </div>
-                    <div class="term-item">
-                      <span class="term-icon">🚫</span>
-                      <p>No-shows may be banned from future events.</p>
-                    </div>
-                    <div class="term-item">
-                      <span class="term-icon">🔒</span>
-                      <p>Slots are non-transferable without prior approval.</p>
+                  </div>
+
+                  <div class="info-section">
+                    <h3>Booking Details</h3>
+                    <div class="terms-list">
+                      <div class="term-item">
+                        <span class="term-icon">✈️</span>
+                        <p>Route: {{ event?.fromICAO }} → {{ event?.toICAO }}</p>
+                      </div>
+                      <div class="term-item">
+                        <span class="term-icon">🕒</span>
+                        <p>Slot Time (UTC): {{ selectedTime }}</p>
+                      </div>
+                      <div class="term-item">
+                        <span class="term-icon">📊</span>
+                        <p>Aircraft Types: A320/A321/A319</p>
+                      </div>
+                      <div class="term-item">
+                        <span class="term-icon">📡</span>
+                        <p>VATSIM Network Event - Ensure your VATSIM credentials are valid</p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div class="input-group signature-group">
                   <label>Electronic Signature</label>
+                  <p class="signature-info">By typing your full name below, you acknowledge that you have read, understood, and agree to all the terms and conditions above.</p>
                   <input
                     v-model="formData.agreementSignature"
                     type="text"
@@ -698,6 +752,78 @@ onMounted(() => {
     width: 60px;
     height: 60px;
     font-size: 30px;
+  }
+}
+
+.info-section {
+  margin-bottom: 2rem;
+}
+
+.info-section h3 {
+  color: #60a5fa;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.terms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.term-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  transition: background-color 0.2s ease;
+}
+
+.term-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.term-icon {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.term-item p {
+  color: #94a3b8;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.term-item strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.signature-info {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.signature-group {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .info-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .term-item {
+    padding: 0.75rem;
   }
 }
 </style> 
